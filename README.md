@@ -64,8 +64,8 @@ az  (align center of part with xy plane)
 
 **Movement** - *move the part along a given axis*
 
-mx=<d> (move part along x-axis by d)
+mx=d (move part along x-axis by d)
 
-my=<d> (move part along y-axis by d)
+my=d (move part along y-axis by d)
 
-mz=<d> (move part along z-axis by d)
+mz=d (move part along z-axis by d)
