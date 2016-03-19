@@ -6,18 +6,19 @@ Export a .wrl file (with colors!)
 
 import sys
 from freecad import *
+print("starting")
 
 step = getStepFile().lower()
 
-if not step.endswith("step") or not step.endswith("stp"):
-    showError("STEP file must be supplied")
-    sys.exit(0)
-    
 showMessage("Importing:",getStepFile())
+
+if not step.endswith("step") and not step.endswith("stp"):
+    showError("STEP file must be supplied")
+    
 showMessage("Exporting:",getWRLFile())
 
 #convert to the silly KiCAD inches format
-scaleAll(1.0/2.54)
+#scaleAll(1.0/2.54)
 #save a WRL file in the same directory as the supplied file
 
 #the 'tmp' command prevents WRL file output and keeps FreeCAD open
@@ -26,4 +27,3 @@ if "tmp" in sys.argv:
 else:
     saveWRL(getWRLFile())
     exit()
-
