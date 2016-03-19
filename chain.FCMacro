@@ -156,6 +156,18 @@ for i in sys.argv[2:]:
         
         moveAll(x,y,z)
         
+    #scaling
+    elif i.startswith("s") and len(i.split("=")) == 2:
+        scaling = i.split("=")[1]
+        
+        try:
+            scaling = float(scaling)
+        except:
+            showError(i,"does not contain a valid scaling factor")
+            continue
+            
+        scaleAll(scaling)
+        
     elif i.endswith(".fcmacro"):
         pass
     
