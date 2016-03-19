@@ -6,8 +6,6 @@ import FreeCAD, FreeCADGui, Draft, ImportGui
 
 import sys, os
 
-FreeCADGui.ActiveDocument.ActiveView.setAxisCross(True)
-
 def getTempStepFile():
     step = os.path.split(getStepFile())
     

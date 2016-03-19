@@ -36,6 +36,7 @@ mz=<d> (move part along z-axis by d)
 
 """
 
+import FreeCAD
 from freecad import *
 
 for i in sys.argv[2:]:
@@ -170,5 +171,7 @@ for i in sys.argv[2:]:
          
     else:
         showError(i,"is not a valid argument")
+        
+FreeCADGui.ActiveDocument.ActiveView.setAxisCross(True)
 
 saveStepAndClose()
