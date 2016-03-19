@@ -1,0 +1,174 @@
+"""
+Input arguments are chained together,
+applied (in sequence) to a STEP file
+and then the output is saved (to the same file!)
+use the 'tmp' command to write the output file with a "tmp_" prefix
+
+usage:
+(If freecad.exe is in PATH):
+freecad.exe stepfile.STEP adjust.FCMacro [arg1] [arg2] [arg3] ... [argn]
+
+arguments:
+
+Rotational - rotte the component 90degrees around the origin (0,0,0)
+rx+ (rotate +90 degrees around X axis)
+rx- (rotate -90 degrees around X axis)
+ry+ (rotate +90 degrees around Y axis)
+ry- (rotate -90 degrees around Y axis)
+rz+ (rotate +90 degrees around Z axis)
+rz- (rotate -90 degrees around Z axis)
+
+Alignment - align one of the sides of the part with the origin
+ax+ (align right side of part with yz plane)
+ax- (align left side of part with yz plane)
+ax  (align center of part with yz plane)
+ay+ (align top side of part with xz plane)
+ay- (align bottom side of part with xz plane)
+ay  (align center of part with xz plane)
+az+ (align top side of part with xy plane)
+az- (align bottom side of part with xy plane)
+az  (align center of part with xy plane)
+
+Movement - move the part along a given axis
+mx=<d> (move part along x-axis by d)
+my=<d> (move part along y-axis by d)
+mz=<d> (move part along z-axis by d)
+
+"""
+
+from freecad import *
+
+for i in sys.argv[2:]:
+
+    i = i.lower()
+    
+    #rotation
+    if i.startswith('r') and len(i) == 3:
+        
+        axis = i[1]
+        sign = i[2]
+            
+        if axis not in ['x','y','z']:
+            showError(i,"does not contain valid axis")
+            continue
+        
+        if sign not in ['+','-']:
+            showError(i,"does not contain valid sign")
+            continue
+        
+        if sign == '+': 
+            angle =  90.0
+        else:
+            angle = -90.0
+            
+        showMessage("Rotating",axis,angle)
+        if axis == 'x':
+            rotateAll(angle,(1,0,0))
+        elif axis == 'y':
+            rotateAll(angle,(0,1,0))
+        elif axis == 'z':
+            rotateAll(angle,(0,0,1))
+                
+    #alignment
+    elif i.startswith('a') and len(i) in [2,3]:
+        axis = i[1]
+        
+        if axis not in ['x','y','z']:
+            showError(i,"does not contain valid axis")
+            continue
+            
+        if len(i) == 2:
+            sign = ""
+        else:
+            sign = i[2]
+            
+        if sign not in ['','+','-']:
+            showError(i,"does not contain valid sign")
+            continue
+            
+        if axis == 'x':
+            if sign == '':
+                showMessage("Aligning X Middle")
+                alignXMiddle()
+            elif sign == '+':
+                showMessage("Aligning X Right")
+                alignXRight()
+            else:
+                showMessage("Aligning X Left")
+                alignXLeft()
+            
+        elif axis == 'y':
+            if sign == '':
+                showMessage("Aligning Y Middle")
+                alignYMiddle()
+            elif sign == '+':
+                showMessage("Aligning Y Top")
+                alignYTop()
+            else:
+                showMessage("Aligning Y Bottom")
+                alignYBottom()
+            
+        elif axis == 'z':
+            if sign == '':
+                showMessage("Aligning Z Middle")
+                alignZMiddle()
+            elif sign == '+':
+                showMessage("Aligning Z Top")
+                alignZTop()
+            else:
+                showMessage("Aligning Z Bottom")
+                alignZBottom()
+                
+    #Movement
+    elif i.startswith("m") and len(i.split("=")) == 2:
+        
+        arg,d = i.split("=")
+        
+        if len(arg) == 2:
+            axis = arg[1]
+        else:
+            showError(i,"axis not supplied")
+            continue
+            
+        if axis not in ['x','y','z']:
+            showError(i,"contains invalid axis")
+            continue
+         
+        #make sure we have a valid number
+        try:
+            distance = float(d)
+        except:
+            showError(i,"does not contain a valid distance")
+            continue
+            
+        #ok, now we can move
+        x,y,z = 0,0,0
+        
+        if axis == 'x':
+            x = distance
+        elif axis == 'y':
+            y = distance
+        elif axis == 'z':
+            z = distance
+            
+        showMessage("Moving:",axis,distance)
+        
+        moveAll(x,y,z)
+        
+    elif i.endswith(".fcmacro"):
+        pass
+    
+    elif i.endswith(".step"):
+        pass
+    
+    elif i.endswith(".stp"):
+        pass
+         
+    #tmp is a signal to FreeCAD, so ignore
+    elif i == 'tmp':
+        pass
+         
+    else:
+        showError(i,"is not a valid argument")
+
+saveStepAndClose()

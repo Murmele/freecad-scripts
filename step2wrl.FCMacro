@@ -1,0 +1,29 @@
+"""
+Take a STEP or STP input file,
+Scale it by 1/2.54
+Export a .wrl file (with colors!)
+"""
+
+import sys
+from freecad import *
+
+step = getStepFile().lower()
+
+if not step.endswith("step") or not step.endswith("stp"):
+    showError("STEP file must be supplied")
+    sys.exit(0)
+    
+showMessage("Importing:",getStepFile())
+showMessage("Exporting:",getWRLFile())
+
+#convert to the silly KiCAD inches format
+scaleAll(1.0/2.54)
+#save a WRL file in the same directory as the supplied file
+
+#the 'tmp' command prevents WRL file output and keeps FreeCAD open
+if "tmp" in sys.argv:
+    pass
+else:
+    saveWRL(getWRLFile())
+    exit()
+
