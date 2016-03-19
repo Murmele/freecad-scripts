@@ -13,34 +13,57 @@ The *chain* macro allows the user to provide a 3D model to FreeCAD, and then seq
 This way, you can download *free* STEP files from a number of sources, and quickly orient them to your footprint.
 Additionally, once you have worked out the sequence of commands required to orient the 3D model, you can use the ADJUST.bat script to apply that sequence to a large number of STEP files.
 
-#Usage
+###Usage
 To use the *chain* macro, you launch freecad from the command-line, with the STEP file as the first argument, chain.FCMacro as the second, and any transformation commands follow.
 
 freecad.exe path/to/model.STEP chain.FCMacro [cmd1] [cmd2] ... [cmdn]
 
-#Commands
+###Commands
 The following commands are available for the *chain* macro
 
 Rotational - rotte the component 90degrees around the origin (0,0,0)
+
 rx+ (rotate +90 degrees around X axis)
+
 rx- (rotate -90 degrees around X axis)
+
 ry+ (rotate +90 degrees around Y axis)
+
 ry- (rotate -90 degrees around Y axis)
+
+
 rz+ (rotate +90 degrees around Z axis)
+
 rz- (rotate -90 degrees around Z axis)
 
+
+
 Alignment - align one of the sides of the part with the origin
+
 ax+ (align right side of part with yz plane)
+
 ax- (align left side of part with yz plane)
+
 ax  (align center of part with yz plane)
+
 ay+ (align top side of part with xz plane)
+
 ay- (align bottom side of part with xz plane)
+
 ay  (align center of part with xz plane)
+
 az+ (align top side of part with xy plane)
+
 az- (align bottom side of part with xy plane)
+
 az  (align center of part with xy plane)
 
+
+
 Movement - move the part along a given axis
+
 mx=<d> (move part along x-axis by d)
+
 my=<d> (move part along y-axis by d)
+
 mz=<d> (move part along z-axis by d)
