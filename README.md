@@ -16,12 +16,14 @@ Additionally, once you have worked out the sequence of commands required to orie
 ###Usage
 To use the *chain* macro, you launch freecad from the command-line, with the STEP file as the first argument, chain.FCMacro as the second, and any transformation commands follow.
 
-freecad.exe path/to/model.STEP chain.FCMacro [cmd1] [cmd2] ... [cmdn]
+freecad.exe path/to/model.STEP chain.FCMacro [cmd1] [cmd2] ... [cmdn] [tmp]
 
 ###Commands
 The following commands are available for the *chain* macro
 
-Rotational - rotte the component 90degrees around the origin (0,0,0)
+**tmp** - Including 'tmp' as an argument will not overwrite the original file, instead the file will be saved with the prefix *tmp_*. This allows experimentation with the adjustment chain without damaging the STEP file.
+
+**Rotational** - *rotate the component 90degrees around the origin (0,0,0)*
 
 rx+ (rotate +90 degrees around X axis)
 
@@ -38,7 +40,7 @@ rz- (rotate -90 degrees around Z axis)
 
 
 
-Alignment - align one of the sides of the part with the origin
+**Alignment** - *align one of the sides of the part with the origin*
 
 ax+ (align right side of part with yz plane)
 
@@ -60,7 +62,7 @@ az  (align center of part with xy plane)
 
 
 
-Movement - move the part along a given axis
+**Movement** - *move the part along a given axis*
 
 mx=<d> (move part along x-axis by d)
 
