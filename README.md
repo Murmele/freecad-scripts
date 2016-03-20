@@ -90,13 +90,13 @@ Let's try out an example.
 
 We've downloaded a manufacturer STEP file that is aligned differently to how we would like it aligned to match our KiCAD footprint. Sometimes, manufacturers supply models which don't match KiCAD's xyz alignment. We can fix that.
 
-In this example, we have a STEP file for the JST S34B-PUDSS-1 connector. We've renamed it to "JST_PUD_S34B-PUDSS-1_2x17x2.00mm_Angled.STEP" to match the footprint name. Note that the rows*pins*pitch information is embededed in the filename.
+In this example, we have a STEP file for the JST S34B-PUDSS-1 connector. We've renamed it to "JST_PUD_S34B-PUDSS-1_2x17x2.00mm_Angled.STEP" to match the footprint name. Note that the rows-pins-pitch information is embedded in the filename.
 
 Let's open it up in FreeCAD and see how we need to manipulate it.
 
 ![alt tag](example/pud_before.png?raw=True "Before")
 
-So the axes are incorrect - z-axis (blue) should be pointing "up" (where the y-axis is currently). So we need to rotate the part 90 degrees around the x-axis. Also, pin-1 is not at the origin as per THT footprint requirements. We can take care of the x-alignment of pin-1 automatically by giving the 'p=x' command. We can also offset the y-axis appropriately. We determine (by measuring the part in FreeCAD) that the part needs to be moved -5.75mm on the y-axis.
+So the axes are incorrect - z-axis (blue) should be pointing "up" (where the green y-axis is currently). So we need to rotate the part 90 degrees around the x-axis. Also, pin-1 is not at the origin as per THT footprint requirements. We can take care of the x-alignment of pin-1 automatically by giving the 'p=x' command. We can also offset the y-axis appropriately. We determine (by measuring the part in FreeCAD) that the part needs to be moved -5.75mm on the y-axis.
 
 Three operations are required. They can easily be chained together using the chain macro, as follows:
 
@@ -121,6 +121,8 @@ Now refresh the model in KiCAD
 Perfect! Without any adjustments to Scale/Offset/Rotation in KiCAD.
 
 Once we have figured out the sequence for adjusting *one* component, we can automate the rest of the components in the series. Say we download *all* the SxxB-PUDSS-1 3D models, we can simply batch convert them all at once, by making a simple adjustment to the provided batch file (or a shell script for our *nix friends). This way you can drag-and-drop all your files onto the script, and the correct changes will be made to *all* the STEP files.
+
+You can even chain the step2wrl.FCMacro command into the batch file so that both processes are executed in series.
 
 ##Build Your Own##
 Play around with a sequence of commands or check out the options available in freecad.py
