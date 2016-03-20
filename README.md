@@ -8,6 +8,10 @@ FreeCAD scripts for converting STEP files to KiCAD-compatible WRL files. These s
 - chain.FCMacro - A FreeCad macro file that accepts a sequence of short-hand commands (e.g. rotation, alignment, movement), applies them in sequence to the provided STEP file, and then re-saves the STEP file in the same location.
 - ADJUST.bat - a windows batch script that allows multiple STEP files to be processed using the same sequence of commands 
 
+###Requirements
+- Install FreeCAD - ![alt tag](http://www.freecadweb.org/)
+- Have fun
+
 ##Adjustment Chain
 The *chain* macro allows the user to provide a 3D model to FreeCAD, and then sequence of commands to perform (in order) to that model. This is a powerful (and quick!) way of converting a 3D model into the correct XYZ orientation, and planar alignment for inclusion in KiCAD as a .wrl file.
 This way, you can download *free* STEP files from a number of sources, and quickly orient them to your footprint.
