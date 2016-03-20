@@ -12,10 +12,9 @@ import math
 def getTempStepFile():
     step = os.path.split(getStepFile())
     
-    print(step)
-    
     return os.path.join(step[0],"tmp_" + step[1])
 
+#get the abs-path for the 3D file provided
 def getStepFile():
     step = sys.argv[1]
     filePath = os.path.dirname(os.path.abspath(__file__))
@@ -23,9 +22,11 @@ def getStepFile():
         step = os.path.join(filePath,step)
     return step
     
+#create a .wrl file path based on the provided 3D file
 def getWRLFile():
     return ".".join(getStepFile().split(".")[:-1]) + ".wrl"
 
+#return the bounding-box for a given object
 def getBoundBox(obj):
     return obj.Shape.BoundBox
     
@@ -61,6 +62,7 @@ def offsetPins(n, pitch):
         #odd pins
         return math.floor(n/2) * pitch
     
+#add a new bounding-box to an ever-expanding bounding-box
 def addBounds(box, bounds=None):
     if not bounds:
         bounds = {}
@@ -82,7 +84,7 @@ def addBounds(box, bounds=None):
 
     return bounds
         
-#get the bounding box (of ALL components in a group)
+#get the bounding box (of ALL components in the document)
 def getBounds():
 
     objs = getAll()
@@ -151,6 +153,7 @@ def scaleAll(scaling):
 
     Draft.scale(getAll(), delta=scale, center=origin, legacy=True, copy=False)
         
+#grab all objects, and export to a STEP file
 def saveSTEP(filename):
     objs = getAll()
 
@@ -168,6 +171,7 @@ def saveStepAndClose():
         saveSTEP(out)
         exit()
         
+#grab all objects and save to a WRL file
 def saveWRL(filename):
     objs = []
     
@@ -195,12 +199,14 @@ def rotateAll(angle,axes):
                 axis=axis,
                 copy=False)
                 
+#print an error message in the FreeCAD console
 def showError(*args):
-    FreeCAD.Console.PrintError(" ".join(map(str,args)) + "\n")
+    FreeCAD.Console.PrintError("Error: " + " ".join(map(str,args)) + "\n")
     
+#print a general message in the FreeCAD console
 def showMessage(*args):
     FreeCAD.Console.PrintMessage(" ".join(map(str,args)) + "\n")
-                
+    
 def rotate_x():
     rotateAll(90,(1,0,0))
     
