@@ -1063,23 +1063,11 @@ def Load_models(pcbThickness,modules):
             say('adjusting Local Path\r\n')
             say('step-module-replaced '+step_module+'\n')
             
-        if step_module != 'no3Dmodel':
-            """
-            step_module=step_module[:-3]+'step'
-            step_module2=step_module[:-4]+'stp'
-            step_module3=step_module[:-4]+'iges'
-            step_module4=step_module[:-4]+'igs'
-            model_name=step_module[:-5]
-            last_slash_pos1=model_name.rfind('/')
-            last_slash_pos2=model_name.rfind('\\')
-            last_slash_pos=max(last_slash_pos1,last_slash_pos2)
-            model_name=model_name[last_slash_pos+1:]
-            say('model name '+model_name+'\n')
-            
-            """
+        if step_module == 'no3Dmodel':
+            modelName = 'no3Dmodel'
+            blacklisted = 1
         else:
-            model_name='no3Dmodel'
-        blacklisted=0
+            blacklisted=0
         if blacklisted_model_elements != '':
             if blacklisted_model_elements.find(model_name) != -1:
                 blacklisted=1
