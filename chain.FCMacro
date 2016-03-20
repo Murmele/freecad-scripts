@@ -179,10 +179,13 @@ for i in sys.argv[2:]:
         showMessage("Moving on",axis,"axis by",d)
             
         if axis == 'x':
+            alignXMiddle()
             moveAll(d,0,0)
         elif axis == 'y':
+            alignYMiddle()
             moveAll(0,d,0)
         else:
+            alignZMiddle()
             moveAll(0,0,d)
         
     #scaling

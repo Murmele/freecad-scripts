@@ -90,7 +90,7 @@ In this example, we have a STEP file for the JST S34B-PUDSS-1 connector. We've r
 
 Let's open it up in FreeCAD and see how we need to manipulate it.
 
-[!alt tag](example/pud_before.png)
+[!alt tag](example\pud_before.png)
 
 So the axes are incorrect - z-axis (blue) should be pointing "up" (where the y-axis is currently). So we need to rotate the part 90 degrees around the x-axis. Also, pin-1 is not at the origin as per THT footprint requirements. We can take care of the x-alignment of pin-1 automatically by giving the 'p=x' command. We can also offset the y-axis appropriately. We determine (by measuring the part in FreeCAD) that the part needs to be moved -5.75mm on the y-axis.
 
@@ -100,7 +100,7 @@ freecad.exe KISYS3DMOD/Connectors_JST.3dshapes/JST_PUD_S34B-PUDSS-1_2x17x2.00mm_
 
 (we use the 'tmp' command to prevent overwriting the original STEP file, so we can confirm that the commands are correct).
 
-[!alt tag](example/pud_after.png)
+[!alt tag](example\pud_after.png)
 
 Success! The axes are aligned correctly, and pin-1 is bang on the origin. How does it look in KiCAD?
 
@@ -112,7 +112,7 @@ freecad.exe KISYS3DMOD/Connectors_JST.3dshapes/JST_PUD_S34B-PUDSS-1_2x17x2.00mm_
 
 Now refresh the model in KiCAD
 
-[!alt tag](example_pud_kicad.png)
+[!alt tag](example\pud_kicad.png)
 
 Perfect! Without any adjustments to Scale/Offset/Rotation in KiCAD.
 
