@@ -61,6 +61,24 @@ def offsetPins(n, pitch):
     else:
         #odd pins
         return math.floor(n/2) * pitch
+        
+def padX():
+    n,p = getPadInformation(getStepFile())
+    d = offsetPins(n,p)
+    
+    moveAll(d,0,0)
+    
+def padY():
+    n,p = getPadInformation(getStepFile())
+    d = offsetPins(n,p)
+    
+    moveAll(0,d,0)
+    
+def padZ():
+    n,p = getPadInformation(getStepFile())
+    d = offsetPins(n,p)
+    
+    moveAll(0,0,d)
     
 #add a new bounding-box to an ever-expanding bounding-box
 def addBounds(box, bounds=None):
@@ -110,7 +128,7 @@ def alignXMiddle():
     
 def alignYMiddle():
     b = getBounds()
-    x = (b['yMin'] + b['yMax']) / 2
+    y = (b['yMin'] + b['yMax']) / 2
     moveAll(0,-y,0)
     
 def alignZMiddle():
