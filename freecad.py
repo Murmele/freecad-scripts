@@ -6,6 +6,9 @@ import FreeCAD, FreeCADGui, Draft, ImportGui
 
 import sys, os
 
+import re
+import math
+
 def getTempStepFile():
     step = os.path.split(getStepFile())
     
@@ -25,6 +28,38 @@ def getWRLFile():
 
 def getBoundBox(obj):
     return obj.Shape.BoundBox
+    
+#from a file-name extract the pin and pitch information
+def getPadInformation(filename):
+    n,pitch = 0,0
+    
+    #look for a string of the format "02x1.25mm"
+    s = "(\d*)x([\.\d]*)mm"
+    
+    res = re.search(s,filename)
+    
+    if res and len(res.groups()) == 2:
+        n, pitch = res.groups()
+        
+        try:
+            n = int(n)
+            pitch = float(pitch)
+        except:
+            n = 0,
+            pitch = 0
+            
+    if n==0 or pitch == 0:
+        showError("Could not find valid pin/pitch information in",filename)
+    return (n,pitch)
+    
+#assuming pins are centered at zero, calculate the distance required to move such that pin-1 is then at zero
+def offsetPins(n, pitch):
+    if n%2 == 0:
+        #even pins
+        return (math.floor(n/2) - 0.5) * pitch
+    else:
+        #odd pins
+        return math.floor(n/2) * pitch
     
 def addBounds(box, bounds=None):
     if not bounds:
@@ -167,10 +202,10 @@ def showMessage(*args):
     FreeCAD.Console.PrintMessage(" ".join(map(str,args)) + "\n")
                 
 def rotate_x():
-    rotate((1,0,0))
+    rotateAll(90,(1,0,0))
     
 def rotate_y():
-    rotate((0,1,0))
+    rotateAll(90,(0,1,0))
     
 def rotate_z():
-    rotate((0,0,1))
+    rotateAll(90,(0,0,1))

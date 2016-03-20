@@ -34,10 +34,20 @@ mx=<d> (move part along x-axis by d)
 my=<d> (move part along y-axis by d)
 mz=<d> (move part along z-axis by d)
 
+Scaling - scale the part by the given value
+s=<d> (scale part by d)
+
+Pin Alignment - Assuming part is centered, offset the part such that pin-1 is at 0 
+p=x (align p1 along x axis)
+p=y (align p1 along y axis)
+p=z (align p1 along z axis)
+
 """
 
 import FreeCAD
 from freecad import *
+
+FreeCADGui.ActiveDocument.ActiveView.setAxisCross(True)
 
 for i in sys.argv[2:]:
 
@@ -155,6 +165,25 @@ for i in sys.argv[2:]:
         showMessage("Moving:",axis,distance)
         
         moveAll(x,y,z)
+        
+    #pin alignment
+    elif i.startswith("p") and len(i.split("=")) == 2:
+        axis = i.split("=")[1]
+        if axis not in ['x','y','z']:
+            showError(i,"contains invalid axis")
+            
+        #extract pin information
+        n,pitch = getPadInformation(getStepFile())
+        showMessage("Pads:",n,"Pitch:",pitch)
+        d = offsetPins(n,pitch)
+        showMessage("Moving on",axis,"axis by",d)
+            
+        if axis == 'x':
+            moveAll(d,0,0)
+        elif axis == 'y':
+            moveAll(0,d,0)
+        else:
+            moveAll(0,0,d)
         
     #scaling
     elif i.startswith("s") and len(i.split("=")) == 2:
