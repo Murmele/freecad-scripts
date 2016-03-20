@@ -9,7 +9,7 @@ FreeCAD scripts for converting STEP files to KiCAD-compatible WRL files. These s
 - ADJUST.bat - a windows batch script that allows multiple STEP files to be processed using the same sequence of commands 
 
 ###Requirements
-- Install FreeCAD - ![alt tag](http://www.freecadweb.org/)
+- Install [FreeCAD](http://www.freecadweb.org/)
 - Have fun
 
 ##Adjustment Chain
