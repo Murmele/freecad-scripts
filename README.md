@@ -1,5 +1,5 @@
 # freecad-scripts
-FreeCAD scripts primarily for converting STEP files to KiCAD-compatible WRL files
+FreeCAD scripts for converting STEP files to KiCAD-compatible WRL files. These scripts allow STEP files to be quickly adjusted to match KiCAD rotation/offset parameters, scaled to inferial inches, and converted to KiCAD-friendly .wrl files. 
 
 ##Files
 - freecad.py - a number of functions for adjusting models in freecad programatically
@@ -38,7 +38,7 @@ rz+ (rotate +90 degrees around Z axis)
 
 rz- (rotate -90 degrees around Z axis)
 
-**Scaling** - *Scale the part by the given amount (around the origin)
+**Scaling** - *Scale the part by the given amount (around the origin)*
 
 s=f (scale the part by scaling-factor 'f')
 
@@ -80,7 +80,7 @@ my=d (move part along y-axis by d)
 
 mz=d (move part along z-axis by d)
 
-#Example#
+##Example##
 
 Let's try out an example.
 
@@ -116,7 +116,9 @@ Now refresh the model in KiCAD
 
 Perfect! Without any adjustments to Scale/Offset/Rotation in KiCAD.
 
-Once we have figured out the sequence for adjusting *one* component, we can automate the rest of the components in the series. Say we download *all* the SxxB-PUDSS-1 3D models, we can simply batch convert them all at once, by making a simple adjustment to the provided batch file (or a shell script for our *nix friends).
+Once we have figured out the sequence for adjusting *one* component, we can automate the rest of the components in the series. Say we download *all* the SxxB-PUDSS-1 3D models, we can simply batch convert them all at once, by making a simple adjustment to the provided batch file (or a shell script for our *nix friends). This way you can drag-and-drop all your files onto the script, and the correct changes will be made to *all* the STEP files.
 
+##Build Your Own##
+Play around with a sequence of commands or check out the options available in freecad.py
 
 
