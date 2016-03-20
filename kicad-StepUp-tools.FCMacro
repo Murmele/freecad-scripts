@@ -1087,138 +1087,134 @@ def Load_models(pcbThickness,modules):
         if (blacklisted==0):
             module_path = getKicadStepFile(getKicad3DModDir(), step_module)
             
-            say("module_path:",module_path)
+            if not step_module:
+                sayw("Missing STEP file for",step_module)
+                missing_models += step_module + "\r\n"
+                continue
+                
+            say("Loading "+ module_path+'\n')
             
-            if module_path:
-                #FreeCADGui.Selection.removeSelection(FreeCAD.activeDocument().ActiveObject)  mauitemp volume diff
-                say("opening "+ module_path+'\n')
-                ImportGui.insert(module_path,FreeCAD.ActiveDocument.Name)
-                if FreeCAD.ActiveDocument.ActiveObject.Label.endswith('001'):
-                    msg="""3D STEP model <b><font color=red>"""
-                    msg+=model_name+"</font> is NOT fused in a single part</b> ...<br>"
-                    msg+="@ "+module_path+" <br>...stopping execution! <br>Please <b>fix</b> the model."
-                    QtGui.qApp.restoreOverrideCursor()
-                    reply = QtGui.QMessageBox.information(None,"Info ...",msg)
-                    stop
-                #say('alive')
-                pos_x=modules[i][1]-off_x
-                pos_y=modules[i][2]-off_y
-                rot=modules[i][3]
-                step_layer=modules[i][4]
-                #say (str(rot))
-                impPart=FreeCAD.ActiveDocument.ActiveObject
-                say("module "+step_module+"\n")
-                impPart.Label = impPart.Label + '_'
-                #say("selection 3D model "+ impPart.Label+'\n')
-                impPart=reset_prop_shapes(impPart,FreeCAD.ActiveDocument, FreeCAD,FreeCADGui)
-                model3D=impPart.Name
-                #say("impPart "+ impPart.Name+'\n')
-                obj = FreeCAD.ActiveDocument.getObject(model3D)
-                FreeCADGui.Selection.addSelection(obj)
-                obj=FreeCAD.ActiveDocument.ActiveObject
-                #volume_minimum=1
-                myPart=FreeCAD.ActiveDocument.getObject(obj.Name)   #mauitemp min vol
-                #sayw(obj.Label)
-                #sayw(step_layer);
-                #sayw(str(myPart.Shape.Volume))
-                #sayw(str(myPart.Shape.BoundBox.ZMax))
-                if myPart.Shape.Volume>volume_minimum:  #mauitemp min vol
-                    if abs(myPart.Shape.BoundBox.ZMax)>height_minimum:  #mauitemp min height
-                        if (height_minimum!=0):
-                            say("height > Min height "+ str(myPart.Shape.BoundBox.ZMax) + " "+impPart.Label+'\r\n')
-                        if (volume_minimum!=0):
-                            say("Volume > Min Volume "+ str(myPart.Shape.Volume) + " "+impPart.Label+'\r\n')
+            #load the STEP file
+            ImportGui.insert(module_path, FreeCAD.ActiveDocument.Name)
+            
+            #Test for mult-body parts
+            if FreeCAD.ActiveDocument.ActiveObject.Label.endswith('001'):
+                msg="3D STEP model <b><font color=red>"
+                msg+=model_name+"</font> is NOT fused in a single part</b> ...<br>"
+                msg+="@ "+module_path+" <br>...stopping execution! <br>Please <b>fix</b> the model."
+                QtGui.qApp.restoreOverrideCursor()
+                reply = QtGui.QMessageBox.information(None,"Info ...",msg)
+                stop
+
+            #Adjust the position of the STEP file based on the KiCAD placement
+            pos_x=modules[i][1]-off_x
+            pos_y=modules[i][2]-off_y
+            rot=modules[i][3]
+            step_layer=modules[i][4]            
+            impPart=FreeCAD.ActiveDocument.ActiveObject
+            impPart.Label = impPart.Label + '_'
+            impPart=reset_prop_shapes(impPart,FreeCAD.ActiveDocument, FreeCAD,FreeCADGui)
+            model3D=impPart.Name
+            obj = FreeCAD.ActiveDocument.getObject(model3D)
+            FreeCADGui.Selection.addSelection(obj)
+            obj=FreeCAD.ActiveDocument.ActiveObject
+            myPart=FreeCAD.ActiveDocument.getObject(obj.Name)   #mauitemp min vol
+            
+            if myPart.Shape.Volume>volume_minimum:  #mauitemp min vol
+                if abs(myPart.Shape.BoundBox.ZMax)>height_minimum:  #mauitemp min height
+                    if (height_minimum!=0):
+                        say("height > Min height "+ str(myPart.Shape.BoundBox.ZMax) + " "+impPart.Label+'\r\n')
+                    if (volume_minimum!=0):
+                        say("Volume > Min Volume "+ str(myPart.Shape.Volume) + " "+impPart.Label+'\r\n')
+                    if (bbox_all==1) or (bbox_list==1):
+                        if whitelisted_model_elements.find(model_name) == -1:
+                            bboxName=createSolidBBox(model3D)
+                    #say(str(bbox_all)+'bbox'+str(bbox_list)+'\n')
+                    #stop
+                    if step_layer == 'Top':
+                        impPart.Placement = FreeCAD.Placement(FreeCAD.Vector(pos_x,pos_y,0),FreeCAD.Rotation(FreeCAD.Vector(0,0,1),rot))
                         if (bbox_all==1) or (bbox_list==1):
-                                if whitelisted_model_elements.find(model_name) == -1:
-                                    bboxName=createSolidBBox(model3D)
-                        #say(str(bbox_all)+'bbox'+str(bbox_list)+'\n')
-                        #stop
-                        if step_layer == 'Top':
-                            impPart.Placement = FreeCAD.Placement(FreeCAD.Vector(pos_x,pos_y,0),FreeCAD.Rotation(FreeCAD.Vector(0,0,1),rot))
-                            if (bbox_all==1) or (bbox_list==1):
-                                #say('bbox\n')
-                                if whitelisted_model_elements.find(model_name) == -1:
-                                    bbox_col=bbox_default_col
-                                    #say("bboxName "+ bboxName +'\r\n')
-                                    #say("bboxName "+str(bboxName.upper().startswith('R'))+'\r\n')
-                                    if (bboxName.upper().startswith('X')):
-                                        bbox_col=bbox_x_col
-                                    if (bboxName.upper().startswith('L')):
-                                        bbox_col=bbox_l_col
-                                    if (bboxName.upper().startswith('R')):
-                                        bbox_col=bbox_r_col
-                                    if (bboxName.upper().startswith('C')):
-                                        bbox_col=bbox_c_col
-                                    if (bboxName.upper().startswith('S')|bboxName.upper().startswith('Q')|bboxName.upper().startswith('D')|bboxName.upper().startswith('T')):
-                                        bbox_col=bbox_IC_col
-                                    obj = FreeCAD.ActiveDocument.getObject(bboxName)
-                                    obj.Placement = FreeCAD.Placement(FreeCAD.Vector(pos_x,pos_y,0),FreeCAD.Rotation(FreeCAD.Vector(0,0,1),rot))
-                                    FreeCADGui.ActiveDocument.getObject(bboxName).ShapeColor=bbox_col
-                                    FreeCADGui.Selection.addSelection(obj)
-                                    #say("selection 3D model "+ obj.Name+'\r\n')
-                                    FreeCAD.ActiveDocument.getObject("Step_Models").addObject(obj)
-                            FreeCADGui.Selection.addSelection(impPart)
-                            FreeCAD.ActiveDocument.getObject("Step_Models").addObject(impPart)
-                            if (bbox_all==1) or (bbox_list==1):
-                                if whitelisted_model_elements.find(model_name) == -1:
-                                    FreeCAD.activeDocument().removeObject(impPart.Name)
-                        #FreeCAD.activeDocument().removeObject(impPart.Name)
-                        ###
-                        else:
-                        #Bottom
-                        #Bottom
-                            impPart.Placement = FreeCAD.Placement(FreeCAD.Vector(pos_x,pos_y,-pcbThickness),FreeCAD.Rotation(FreeCAD.Vector(0,1,0),180))
-                            #obj.Placement = impPart.Placement
-                            shape=impPart.Shape.copy()
-                            shape.Placement=impPart.Placement;
-                            shape.rotate((pos_x,pos_y,-pcbThickness),(0,0,1),-rot+180)
-                            impPart.Placement=shape.Placement
-                            if (bbox_all==1) or (bbox_list==1):
-                                if whitelisted_model_elements.find(model_name) == -1:
-                                    bbox_col=bbox_default_col
-                                    if (bboxName.upper().startswith('X')):
-                                        bbox_col=bbox_x_col
-                                    if (bboxName.upper().startswith('L')):
-                                        bbox_col=bbox_l_col
-                                    if (bboxName.upper().startswith('R')):
-                                        bbox_col=bbox_r_col
-                                    if (bboxName.upper().startswith('C')):
-                                        bbox_col=bbox_c_col
-                                    if (bboxName.upper().startswith('S')|bboxName.upper().startswith('Q')|bboxName.upper().startswith('D')|bboxName.upper().startswith('T')):
-                                        bbox_col=bbox_IC_col
-                                    obj = FreeCAD.ActiveDocument.getObject(bboxName)
-                                    FreeCADGui.Selection.addSelection(obj)
-                                    obj.Placement = FreeCAD.Placement(FreeCAD.Vector(pos_x,pos_y,-pcbThickness),FreeCAD.Rotation(FreeCAD.Vector(0,1,0),180))
-                                    shape2=obj.Shape.copy()
-                                    shape2.Placement=obj.Placement;
-                                    shape2.rotate((pos_x,pos_y,-pcbThickness),(0,0,1),-rot+180)
-                                    obj.Placement=shape2.Placement
-                                    FreeCADGui.ActiveDocument.getObject(bboxName).ShapeColor=bbox_col
-                                    FreeCADGui.Selection.addSelection(obj)
-                                    FreeCAD.ActiveDocument.getObject(obj.Name)
-                                    FreeCAD.ActiveDocument.getObject("Step_Models").addObject(obj)
-                            FreeCADGui.Selection.addSelection(impPart)
-                            FreeCAD.ActiveDocument.getObject(impPart.Name)
-                            FreeCAD.ActiveDocument.getObject("Step_Models").addObject(impPart)
-                            if (bbox_all==1) or (bbox_list==1):
-                                if whitelisted_model_elements.find(model_name) == -1:
-                                    FreeCAD.activeDocument().removeObject(impPart.Name)
-                            #Part.show(shape)
-                            #Part.show(shape2)
-                            #say("todo ...\n")
-                    else:  #mauitemp min height
-                        FreeCAD.activeDocument().removeObject(obj.Name)
-                else:  #mauitemp min vol
+                            #say('bbox\n')
+                            if whitelisted_model_elements.find(model_name) == -1:
+                                bbox_col=bbox_default_col
+                                #say("bboxName "+ bboxName +'\r\n')
+                                #say("bboxName "+str(bboxName.upper().startswith('R'))+'\r\n')
+                                if (bboxName.upper().startswith('X')):
+                                    bbox_col=bbox_x_col
+                                if (bboxName.upper().startswith('L')):
+                                    bbox_col=bbox_l_col
+                                if (bboxName.upper().startswith('R')):
+                                    bbox_col=bbox_r_col
+                                if (bboxName.upper().startswith('C')):
+                                    bbox_col=bbox_c_col
+                                if (bboxName.upper().startswith('S')|bboxName.upper().startswith('Q')|bboxName.upper().startswith('D')|bboxName.upper().startswith('T')):
+                                    bbox_col=bbox_IC_col
+                                obj = FreeCAD.ActiveDocument.getObject(bboxName)
+                                obj.Placement = FreeCAD.Placement(FreeCAD.Vector(pos_x,pos_y,0),FreeCAD.Rotation(FreeCAD.Vector(0,0,1),rot))
+                                FreeCADGui.ActiveDocument.getObject(bboxName).ShapeColor=bbox_col
+                                FreeCADGui.Selection.addSelection(obj)
+                                #say("selection 3D model "+ obj.Name+'\r\n')
+                                FreeCAD.ActiveDocument.getObject("Step_Models").addObject(obj)
+                        FreeCADGui.Selection.addSelection(impPart)
+                        FreeCAD.ActiveDocument.getObject("Step_Models").addObject(impPart)
+                        if (bbox_all==1) or (bbox_list==1):
+                            if whitelisted_model_elements.find(model_name) == -1:
+                                FreeCAD.activeDocument().removeObject(impPart.Name)
+                    ###
+                    else:
+                    #Bottom
+                        impPart.Placement = FreeCAD.Placement(FreeCAD.Vector(pos_x,pos_y,-pcbThickness),FreeCAD.Rotation(FreeCAD.Vector(0,1,0),180))
+                        #obj.Placement = impPart.Placement
+                        shape=impPart.Shape.copy()
+                        shape.Placement=impPart.Placement;
+                        shape.rotate((pos_x,pos_y,-pcbThickness),(0,0,1),-rot+180)
+                        impPart.Placement=shape.Placement
+                        if (bbox_all==1) or (bbox_list==1):
+                            if whitelisted_model_elements.find(model_name) == -1:
+                                bbox_col=bbox_default_col
+                                if (bboxName.upper().startswith('X')):
+                                    bbox_col=bbox_x_col
+                                if (bboxName.upper().startswith('L')):
+                                    bbox_col=bbox_l_col
+                                if (bboxName.upper().startswith('R')):
+                                    bbox_col=bbox_r_col
+                                if (bboxName.upper().startswith('C')):
+                                    bbox_col=bbox_c_col
+                                if (bboxName.upper().startswith('S')|bboxName.upper().startswith('Q')|bboxName.upper().startswith('D')|bboxName.upper().startswith('T')):
+                                    bbox_col=bbox_IC_col
+                                obj = FreeCAD.ActiveDocument.getObject(bboxName)
+                                FreeCADGui.Selection.addSelection(obj)
+                                obj.Placement = FreeCAD.Placement(FreeCAD.Vector(pos_x,pos_y,-pcbThickness),FreeCAD.Rotation(FreeCAD.Vector(0,1,0),180))
+                                shape2=obj.Shape.copy()
+                                shape2.Placement=obj.Placement;
+                                shape2.rotate((pos_x,pos_y,-pcbThickness),(0,0,1),-rot+180)
+                                obj.Placement=shape2.Placement
+                                FreeCADGui.ActiveDocument.getObject(bboxName).ShapeColor=bbox_col
+                                FreeCADGui.Selection.addSelection(obj)
+                                FreeCAD.ActiveDocument.getObject(obj.Name)
+                                FreeCAD.ActiveDocument.getObject("Step_Models").addObject(obj)
+                        FreeCADGui.Selection.addSelection(impPart)
+                        FreeCAD.ActiveDocument.getObject(impPart.Name)
+                        FreeCAD.ActiveDocument.getObject("Step_Models").addObject(impPart)
+                        if (bbox_all==1) or (bbox_list==1):
+                            if whitelisted_model_elements.find(model_name) == -1:
+                                FreeCAD.activeDocument().removeObject(impPart.Name)
+                        #Part.show(shape)
+                        #Part.show(shape2)
+                        #say("todo ...\n")
+                else:  #mauitemp min height
                     FreeCAD.activeDocument().removeObject(obj.Name)
-            ###
-            else:
-                say("error missing "+ models3D_prefix+step_module+'\r\n')
-                test = missing_models.find(step_module)
-                if test is -1:
-                    missing_models += models3D_prefix+step_module+'\r\n' #matched
-        ###
-        ###
-    ###
+            else:  #mauitemp min vol
+                FreeCAD.activeDocument().removeObject(obj.Name)
+                    #say (str(rot))
+                    #say("selection 3D model "+ impPart.Label+'\n')
+                    #say("impPart "+ impPart.Name+'\n')
+                    #volume_minimum=1
+                    #sayw(obj.Label)
+                    #sayw(step_layer);
+                    #sayw(str(myPart.Shape.Volume))
+                    #sayw(str(myPart.Shape.BoundBox.ZMax))
+                    
     #sleep
     FreeCAD.ActiveDocument.recompute()
     if missing_models != '':
@@ -2705,8 +2701,6 @@ def getKicad3DModDir():
 #find a STEP file for a given wrl file
 def getKicadStepFile(dir_3d, wrl_name):
     
-    say("getKicadStepFile",dir_3d, wrl_name)
-    
     wrl_name = wrl_name.replace("/",os.path.sep)
     wrl_name = wrl_name.replace("\\",os.path.sep)
     
@@ -2721,7 +2715,7 @@ def getKicadStepFile(dir_3d, wrl_name):
         for step in steps:
             step_name = wrl_name.replace(".wrl",step)
             
-            step_file = os.path.join(dir_3d, wrl_name)
+            step_file = os.path.join(dir_3d, step_name)
             
             if os.path.isfile(step_file):
                 return step_file
