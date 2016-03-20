@@ -38,7 +38,19 @@ rz+ (rotate +90 degrees around Z axis)
 
 rz- (rotate -90 degrees around Z axis)
 
+**Scaling** - *Scale the part by the given amount (around the origin)
 
+s=f (scale the part by scaling-factor 'f')
+
+**Pin Offset** - *Automagically offset the position of the part along a given axis such that pin-1 is at zero on that axis*
+
+p=[x|y|z] - Specify that we want to auto-align pin-1 along a given axis
+
+This option can save a *lot* of time either adjusting the 3D model so that pin-1 (for THT parts) is at the origin, or adjusting the offset of the WRL file in KiCAD so that it matches the footprint. This is the most complicated command but provides powerful functionality if used correctly. The file-name of the input STEP file needs to include pin-count and pitch information, in the format '*pins*x*pitch*mm' (for example: *JST_PUD_S34B-PUDSS-1_2x17x2.00mm_Angled.STEP*) will be evaluated as 17 pins, 2.00mm pitch. 
+
+*Note: Yes, this part actually has 34 pins, but it's split into two rows, and it is the pins-per-row that we are really interested in.*
+
+For example, if the pins are distributed along the x-axis, we can use the command 'p=x'. The script will first center the part on the x-axis, and then offset it by the requisite amount such that pin-1 is at the origin.
 
 **Alignment** - *align one of the sides of the part with the origin*
 
@@ -60,8 +72,6 @@ az- (align bottom side of part with xy plane)
 
 az  (align center of part with xy plane)
 
-
-
 **Movement** - *move the part along a given axis*
 
 mx=d (move part along x-axis by d)
@@ -69,3 +79,44 @@ mx=d (move part along x-axis by d)
 my=d (move part along y-axis by d)
 
 mz=d (move part along z-axis by d)
+
+#Example#
+
+Let's try out an example.
+
+We've downloaded a manufacturer STEP file that is aligned differently to how we would like it aligned to match our KiCAD footprint. Sometimes, manufacturers supply models which don't match KiCAD's xyz alignment. We can fix that.
+
+In this example, we have a STEP file for the JST S34B-PUDSS-1 connector. We've renamed it to "JST_PUD_S34B-PUDSS-1_2x17x2.00mm_Angled.STEP" to match the footprint name. Note that the rows*pins*pitch information is embededed in the filename.
+
+Let's open it up in FreeCAD and see how we need to manipulate it.
+
+[!alt tag](example/pud_before.png)
+
+So the axes are incorrect - z-axis (blue) should be pointing "up" (where the y-axis is currently). So we need to rotate the part 90 degrees around the x-axis. Also, pin-1 is not at the origin as per THT footprint requirements. We can take care of the x-alignment of pin-1 automatically by giving the 'p=x' command. We can also offset the y-axis appropriately. We determine (by measuring the part in FreeCAD) that the part needs to be moved -5.75mm on the y-axis.
+
+Three operations are required. They can easily be chained together using the chain macro, as follows:
+
+freecad.exe KISYS3DMOD/Connectors_JST.3dshapes/JST_PUD_S34B-PUDSS-1_2x17x2.00mm_Angled.STEP chain.FCMacro rx+ my=-5.75 p=x tmp
+
+(we use the 'tmp' command to prevent overwriting the original STEP file, so we can confirm that the commands are correct).
+
+[!alt tag](example/pud_after.png)
+
+Success! The axes are aligned correctly, and pin-1 is bang on the origin. How does it look in KiCAD?
+
+Run the chain command again, without the 'tmp' argument to make the changes stick.
+
+Then, run the step2wrl macro to make a KiCAD-compatible wrl file
+
+freecad.exe KISYS3DMOD/Connectors_JST.3dshapes/JST_PUD_S34B-PUDSS-1_2x17x2.00mm_Angled.STEP step2wrl.FCMacro
+
+Now refresh the model in KiCAD
+
+[!alt tag](example_pud_kicad.png)
+
+Perfect! Without any adjustments to Scale/Offset/Rotation in KiCAD.
+
+Once we have figured out the sequence for adjusting *one* component, we can automate the rest of the components in the series. Say we download *all* the SxxB-PUDSS-1 3D models, we can simply batch convert them all at once, by making a simple adjustment to the provided batch file (or a shell script for our *nix friends).
+
+
+
