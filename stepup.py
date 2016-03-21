@@ -179,11 +179,9 @@ def getKicadStepFile(dir_3d, wrl_name):
                 
     return None
     
-#rotate 90 degrees across a given axis
+#rotate around a given axis
 #centered around zero
-def rotateAll(angle,axes):
-
-    objs = getAllObjects()
+def rotate(objs,angle,axes):
 
     origin = FreeCAD.Vector(0,0,0)
     x,y,z = axes
@@ -197,7 +195,7 @@ def rotateAll(angle,axes):
                 
                 
 #scale ALL objects around center (down to inches for KiCAD)
-def scaleAll(scaling):
+def scale(objs, scaling):
 
     if type(scaling) in [int, float]:
         x = scaling
@@ -209,11 +207,11 @@ def scaleAll(scaling):
     scale = FreeCAD.Vector(x,y,z)
     origin = FreeCAD.Vector(0,0,0)
 
-    Draft.scale(getAllObjects(), delta=scale, center=origin, legacy=True, copy=False)
+    Draft.scale(objs, delta=scale, center=origin, legacy=True, copy=False)
          
 #move all objects 
-def moveAll(x,y,z):
-    Draft.move(getAllObjects(),FreeCAD.Vector(x,y,z))
+def move(objs,x,y,z):
+    Draft.move(objs,FreeCAD.Vector(x,y,z))
     
 #get the consolidated bounding box for a group of objects
 def getBounds(objs):

@@ -18,7 +18,7 @@ wrl = stepup.getWRLFile()
 stepup.say("Exporting:",wrl)
 
 #convert to the silly KiCAD inches format
-stepup.scaleAll(1.0/2.54)
+stepup.scale(stepup.getAll(),1.0/2.54)
 
 stepup.exportVRMLMeshes(stepup.getAllMeshes(),wrl)
 exit()
