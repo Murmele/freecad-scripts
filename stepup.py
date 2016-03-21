@@ -180,7 +180,7 @@ def getKicadStepFile(wrl_name):
     if os.path.isabs(model_dir):
         dirs.append(model_dir)
         
-    dirs.append(os.path.join(getKicad3DModDir() , model_dir.split(os.path.sep)[-1]))
+    dirs.append(os.path.join(getKicad3DModDir(),model_dir))
     
     #try all the directories
     for d in dirs:
