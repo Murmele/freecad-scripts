@@ -121,6 +121,10 @@ def sayw(*arg):
 #display an error message
 def sayerr(*arg):
     FreeCAD.Console.PrintError(" ".join(map(str,arg)) + "\n")
+    
+#display a message in a message box
+def saymsg(title, *arg):
+    QtGui.QMessageBox.information(None,title," ".join(arg)+"\r\n")
 
 #clear the console
 def clear_console():

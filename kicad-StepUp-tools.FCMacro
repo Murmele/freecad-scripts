@@ -2888,6 +2888,10 @@ def routineR_XYZ(axe,alpha):
     FreeCADGui.activateWorkbench("PartWorkbench")
     
     objs = stepup.getSelectedObjects()
+
+    if len(objs) > 1:
+        stepup.saymsg("Single bodies only","Select ONE single-part object only")
+        return
     
     say("Rotation:",alpha)
     
@@ -2899,8 +2903,6 @@ def routineR_XYZ(axe,alpha):
         stepup.rotate(objs,alpha,(0,1,0))
     elif axe == 'z':
         stepup.rotate(objs,alpha,(0,0,1))
-        
-    say("got here")
 
 def routineT_XYZ(axe,v):
     global resetP
@@ -2910,6 +2912,10 @@ def routineT_XYZ(axe,v):
     ##FreeCADGui.activeDocument().activeView().viewTop()
     
     objs = stepup.getSelectedObjects()
+    
+    if len(objs) > 1:
+        stepup.saymsg("Single bodies only","Select ONE single-part object only")
+        return
     
     v = float(v)
     
@@ -3087,6 +3093,10 @@ def routineC_XYZ(axe):
     
     objs = stepup.getSelectedObjects()
     
+    if len(objs) > 1:
+        stepup.saymsg("Single bodies only","Select ONE single-part object only")
+        return
+    
     if axe == 'x':
         stepup.centerX(objs)
     elif axe == 'y':
@@ -3104,6 +3114,10 @@ def routineP_XYZ(axe):
     doc = FreeCAD.ActiveDocument
     say("Put on Axe XYZ !"+"\r\n")
     objs = stepup.getSelectedObjects()
+    
+    if len(objs) > 1:
+        stepup.saymsg("Single bodies only","Select ONE single-part object only")
+        return
     
     bounds = stepup.getBounds(objs)
     
@@ -3174,41 +3188,27 @@ def routineM_XYZ(axe,v):
     doc = FreeCAD.ActiveDocument
     objs = stepup.getSelectedObjects()
     
-    if len(objs) == 1:
-        s = objs[0].Shape
-        boundBox_ = s.BoundBox
-        boundBoxLX = boundBox_.XLength
-        boundBoxLY = boundBox_.YLength
-        boundBoxLZ = boundBox_.ZLength
-        a = str(boundBox_)
-        a,b = a.split('(')
-        c = b.split(',')
-        oripl_X = float(c[0])
-        oripl_Y = float(c[1])
-        oripl_Z = float(c[2])
-        shape=s.copy()
-        shape.Placement=s.Placement;p=s.Placement
-        #shape.rotate((oripl_X,oripl_Y,oripl_Z),(1,0,0),90)
-        #say("axe "+axe+", value "+v+"\r\n")
-        if axe=='x':
-            #if abs(float(v)-p.Base[0])>min_val:
-            shape.translate((float(v)-oripl_X,0,0))
-        if axe=='y':
-            shape.translate((0,float(v)-oripl_Y,0))
-        if axe=='z':
-            shape.translate((0,0,float(v)-oripl_Z))
-        #Part.show(shape)
-        objs[0].Placement=shape.Placement
-        FreeCADGui.Selection.addSelection(objs[0])
-        FreeCAD.activeDocument().recompute()
-        if resetP==True:
-            routineResetPlacement()
-        #say("end of rotineM!"+"\r\n")
-    else:
-        say("Select an object !"+"\r\n")
-        #QtGui.QMessageBox.information(None,"Info ...","Select ONE single part object !\r\n"+"\r\n")
-###  end Move to Point XYZ
-
+    #move objects
+    if len(objs) > 1:
+        stepup.saymsg("Single bodies only","Select ONE single-part object only")
+        return
+    
+    bounds = stepup.getBounds(objs)
+    
+    v = float(v)
+    
+    if axe == 'x':
+        xMid = (bounds.XMin + bounds.XMax) / 2
+        stepup.move(objs,v-xMid,0,0)
+    elif axe == 'y':
+        yMid = (bounds.YMin + bounds.YMax) / 2
+        stepup.move(objs,0,v-yMid, 0)
+    elif axe == 'z':
+        zMid = (bounds.ZMin + bounds.ZMax) / 2
+        stepup.move(objs,0,0,v-zMid)
+    
+    return
+    
 def routineCollisions():
     global conflict_tolerance
     def error_dialog(msg):
