@@ -1482,8 +1482,8 @@ def getPCBArea(Kicad_Board):
 
 def createSolidBBox(model3D):
     selEx=model3D
-    selEx = stepup.getSelectedObjects()
-    objs = [selobj.Object for selobj in selEx]
+    objs = stepup.getSelectedObjects()
+    
     if len(objs) == 1:
         s = objs[0].Shape
         name=objs[0].Label
@@ -2886,50 +2886,21 @@ def routineR_XYZ(axe,alpha):
     global resetP
     say('routine Rotate XYZ\n')
     FreeCADGui.activateWorkbench("PartWorkbench")
-    #FreeCADGui.SendMsgToActiveView("ViewFit")
-    ##FreeCADGui.activeDocument().activeView().viewTop()
-    doc = FreeCAD.ActiveDocument
-    #FreeCAD.Console.PrintMessage("hereXYZ !"+"\r\n")
-    selEx = stepup.getSelectedObjects()
-    objs = [selobj.Object for selobj in selEx]
-    if len(objs) == 1:
-        s = objs[0].Shape
-        shape=s.copy()
-        shape.Placement=s.Placement;
-        boundBox_ = s.BoundBox
-        boundBoxLX = boundBox_.XLength
-        boundBoxLY = boundBox_.YLength
-        boundBoxLZ = boundBox_.ZLength
-        a = str(boundBox_)
-        a,b = a.split('(')
-        c = b.split(',')
-        oripl_X = float(c[0])
-        oripl_Y = float(c[1])
-        oripl_Z = float(c[2])
-        #say("bbx: "+str(boundBoxLX)+" bby: "+str(boundBoxLY)+"bbz: "+str(boundBoxLZ)+"\r\n")
-        #say("x: "+str(oripl_X)+" y: "+str(oripl_Y)+"z: "+str(oripl_Z)+"\r\n")
-        #shape.rotate((oripl_X,oripl_Y,oripl_Z),(1,0,0),90)
-        angle=alpha
-        if axe=='x':
-            #shape.rotate((0,0,0),(1,0,0),90)
-            shape.rotate((oripl_X+boundBoxLX/2,oripl_Y+boundBoxLY/2,oripl_Z+boundBoxLZ/2),(1,0,0),int(angle))
-        if axe=='y':
-            #shape.rotate((0,0,0),(0,1,0),90)
-            shape.rotate((oripl_X+boundBoxLX/2,oripl_Y+boundBoxLY/2,oripl_Z+boundBoxLZ/2),(0,1,0),int(angle))
-        if axe=='z':
-            #shape.rotate((0,0,0),(0,0,1),90)
-            shape.rotate((oripl_X+boundBoxLX/2,oripl_Y+boundBoxLY/2,oripl_Z+boundBoxLZ/2),(0,0,1),int(angle))
-        #Part.show(shape)
-        objs[0].Placement=shape.Placement
-        FreeCADGui.Selection.addSelection(objs[0])
-        FreeCAD.activeDocument().recompute()
-        if resetP==True:
-            routineResetPlacement()
-        #say("end of rotineZ!"+"\r\n")
-    else:
-        say("Select ONE single part object !\r\n"+"\r\n")
-        #QtGui.QMessageBox.information(None,"Info ...","Select ONE single part object !\r\n"+"\r\n")
-###  end RotateXYZ
+    
+    objs = stepup.getSelectedObjects()
+    
+    say("Rotation:",alpha)
+    
+    alpha = float(alpha)
+    
+    if axe == 'x':
+        stepup.rotate(objs,alpha,(1,0,0))
+    elif axe == 'y':
+        stepup.rotate(objs,alpha,(0,1,0))
+    elif axe == 'z':
+        stepup.rotate(objs,alpha,(0,0,1))
+        
+    say("got here")
 
 def routineT_XYZ(axe,v):
     global resetP
@@ -2937,32 +2908,15 @@ def routineT_XYZ(axe,v):
     FreeCADGui.activateWorkbench("PartWorkbench")
     #FreeCADGui.SendMsgToActiveView("ViewFit")
     ##FreeCADGui.activeDocument().activeView().viewTop()
-    doc = FreeCAD.ActiveDocument
-    selEx = stepup.getSelectedObjects()
-    objs = [selobj.Object for selobj in selEx]
-    if len(objs) == 1:
-        s = objs[0].Shape
-        shape=s.copy()
-        shape.Placement=s.Placement;
-        #shape.rotate((oripl_X,oripl_Y,oripl_Z),(1,0,0),90)
-        #say("axe "+axe+", value "+v+"\r\n")
-        if axe=='x':
-            shape.translate((float(v),0,0))
-        if axe=='y':
-            shape.translate((0,float(v),0))
-        if axe=='z':
-            shape.translate((0,0,float(v)))
-        #Part.show(shape)
-        objs[0].Placement=shape.Placement
-        FreeCADGui.Selection.addSelection(objs[0])
-        FreeCAD.activeDocument().recompute()
-        if resetP==True:
-            routineResetPlacement()
-        #say("end of rotineT!"+"\r\n")
-    else:
-        say("Select ONE single part object !\r\n"+"\r\n")
-        #QtGui.QMessageBox.information(None,"Info ...","Select ONE single part object !\r\n"+"\r\n")
-###  end TranslateXYZ
+    
+    objs = stepup.getSelectedObjects()
+    
+    if axe == 'x':
+        stepup.move(v,0,0)
+    elif axe == 'y':
+        stepup.move(0,v,0)
+    elif axe == 'z':
+        stepup.move(0,0,v)
 
 def routineResetPlacement():
     objs=[]
@@ -2970,8 +2924,8 @@ def routineResetPlacement():
     #FreeCADGui.SendMsgToActiveView("ViewFit")
     ##FreeCADGui.activeDocument().activeView().viewTop()
     doc = FreeCAD.ActiveDocument
-    selEx = stepup.getSelectedObjects()
-    objs = [selobj.Object for selobj in selEx]
+    objs = stepup.getSelectedObjects()
+    
     #print 'here'
     if len(objs) == 1:
         say('routine reset Placement properties\n')
@@ -3014,8 +2968,8 @@ def routineScaleVRML():
     global exportV, exportS
     say('routine Scale to VRML 1/2.54\n')
     doc = FreeCAD.ActiveDocument
-    selEx = stepup.getSelectedObjects()
-    objs = [selobj.Object for selobj in selEx]
+    objs = stepup.getSelectedObjects()
+    
     if len(objs) == 1:
         say('exporting\n')
         fullFilePathName=doc.FileName
@@ -3062,8 +3016,8 @@ def routineScaleVRML_1():
     #FreeCADGui.SendMsgToActiveView("ViewFit")
     ##FreeCADGui.activeDocument().activeView().viewTop()
     doc = FreeCAD.ActiveDocument
-    selEx = stepup.getSelectedObjects()
-    objs = [selobj.Object for selobj in selEx]
+    objs = stepup.getSelectedObjects()
+    
     if len(objs) == 1:
         objS=FreeCAD.ActiveDocument.getObject(objs[0].Name).Shape
         #FreeCADGui.ActiveDocument.getObject(objs[0].Name).BoundingBox = True
@@ -3128,61 +3082,15 @@ def routineC_XYZ(axe):
     ##FreeCADGui.activeDocument().activeView().viewTop()
     doc = FreeCAD.ActiveDocument
     say("Centering on Axe XYZ !"+"\r\n")
-    selEx = stepup.getSelectedObjects()
-    objs = [selobj.Object for selobj in selEx]
-    if len(objs) == 1:
-        s = objs[0].Shape
-        shape=s.copy()
-        #shape.Placement=s.Placement;
-        shape.Placement= FreeCAD.Placement(FreeCAD.Vector(0,0,0),FreeCAD.Rotation(FreeCAD.Vector(0,0,1),0))
-        boundBox_ = s.BoundBox
-        boundBoxLX = boundBox_.XLength
-        boundBoxLY = boundBox_.YLength
-        boundBoxLZ = boundBox_.ZLength
-        say("bbox: "+str(boundBox_)+"\r\n")
-
-        a = str(boundBox_)
-        a,b = a.split('(')
-        c = b.split(',')
-        oripl_X = float(c[0])
-        oripl_Y = float(c[1])
-        oripl_Z = float(c[2])
-        #say("bbx: "+str(boundBoxLX)+" bby: "+str(boundBoxLY)+"bbz: "+str(boundBoxLZ)+"\r\n")
-        #say("x: "+str(oripl_X)+" y: "+str(oripl_Y)+"z: "+str(oripl_Z)+"\r\n")
-
-        p=s.Placement
-        #say("PlacementBase  : "+str(p)+"\r\n")
-        #say(str(p.Base[0])+' '+str(p.Base[1])+' '+str(p.Base[2])+"\r\n")
-        if axe=='x':
-            #shape.translate((0,0,0))
-            diffPl=-oripl_X-boundBoxLX/2
-            #shape.Placement.move(diffPl,0,0)
-            #shape.translate(Base.Vector(diffPl,0,0))
-            shape.translate((diffPl,p.Base[1],p.Base[2]))
-        if axe=='y':
-            diffPl=-oripl_Y-boundBoxLY/2
-            #shape.translate(Base.Vector(0,diffPl,0))
-            shape.translate((p.Base[0],diffPl,p.Base[2]))
-        if axe=='z':
-            diffPl=-oripl_Z-boundBoxLZ/2
-            shape.translate((p.Base[0],p.Base[1],diffPl))
-            #shape.translate(Base.Vector(0,0,diffPl))
-        ### to zero posX -bboxX/2
-        #say("x: "+str(oripl_X)+" y: "+str(oripl_Y)+"z: "+str(oripl_Z)+"\r\n")
-        #say("axe "+axe+" placement"+str(diffPl)+"\r\n")
-        #Part.show(shape)
-        objs[0].Placement=shape.Placement
-        FreeCADGui.Selection.addSelection(objs[0])
-        FreeCAD.activeDocument().recompute()
-        #say("x: "+str(oripl_X)+"\r\ny: "+str(oripl_Y)+"\r\nz: "+str(oripl_Z)+"\r\n")
-        if resetP==True:
-            routineResetPlacement()
-            #say("pos reset done\r\n")
-        #say("done\r\n")
-    else:
-        say("Select an object !"+"\r\n")
-        #QtGui.QMessageBox.information(None,"Info ...","Select an object !"+"\r\n")
-###  end routineC_XYZ
+    
+    objs = stepup.getSelectedObjects()
+    
+    if axe == 'x':
+        stepup.centerX(objs)
+    elif axe == 'y':
+        stepup.centerY(objs)
+    elif axe == 'z':
+        stepup.centerZ(objs)
 
 def routineP_XYZ(axe):
     global resetP
@@ -3193,56 +3101,16 @@ def routineP_XYZ(axe):
     ##FreeCADGui.activeDocument().activeView().viewTop()
     doc = FreeCAD.ActiveDocument
     say("Put on Axe XYZ !"+"\r\n")
-    selEx = stepup.getSelectedObjects()
-    objs = [selobj.Object for selobj in selEx]
-    if len(objs) == 1:
-        s = objs[0].Shape
-        shape=s.copy()
-        #shape.Placement=s.Placement;
-        shape.Placement= FreeCAD.Placement(FreeCAD.Vector(0,0,0),FreeCAD.Rotation(FreeCAD.Vector(0,0,1),0))
-        boundBox_ = s.BoundBox
-        boundBoxLX = boundBox_.XLength
-        boundBoxLY = boundBox_.YLength
-        boundBoxLZ = boundBox_.ZLength
-        a = str(boundBox_)
-        a,b = a.split('(')
-        c = b.split(',')
-        oripl_X = float(c[0])
-        oripl_Y = float(c[1])
-        oripl_Z = float(c[2])
-        p=s.Placement
-        say("PlacementBase  : "+str(p)+"\r\n")
-        #say(str(p.Base[0])+' '+str(p.Base[1])+' '+str(p.Base[2])+"\r\n")
-        if axe=='x':
-            #shape.translate((0,0,0))
-            diffPl=p.Base[0]-oripl_X
-            #shape.Placement.move(diffPl,0,0)
-            #shape.translate(Base.Vector(diffPl,0,0))
-            shape.translate((diffPl,p.Base[1],p.Base[2]))
-        if axe=='y':
-            diffPl=p.Base[1]-oripl_Y
-            #shape.translate(Base.Vector(0,diffPl,0))
-            shape.translate((p.Base[0],diffPl,p.Base[2]))
-        if axe=='z':
-            diffPl=p.Base[2]-oripl_Z
-            shape.translate((p.Base[0],p.Base[1],diffPl))
-            #shape.translate(Base.Vector(0,0,diffPl))
-        ### to zero posX -bboxX/2
-        #say("x: "+str(oripl_X)+" y: "+str(oripl_Y)+"z: "+str(oripl_Z)+"\r\n")
-        #say("axe "+axe+" placement"+str(diffPl)+"\r\n")
-        #Part.show(shape)
-        objs[0].Placement=shape.Placement
-        FreeCADGui.Selection.addSelection(objs[0])
-        FreeCAD.activeDocument().recompute()
-        #say("x: "+str(oripl_X)+"\r\ny: "+str(oripl_Y)+"\r\nz: "+str(oripl_Z)+"\r\n")
-        #say("placement "+str(p[0]))
-        #return [oripl_X, oripl_Y, oripl_Z,p.Base[0],p.Base[1],p.Base[2]];
-        if resetP==True:
-            routineResetPlacement()
-    else:
-        say("Select ONE single part object !\r\n"+"\r\n")
-        #QtGui.QMessageBox.information(None,"Info ...","Select ONE single part object !\r\n"+"\r\n")
-###  end routineP_XYZ
+    objs = stepup.getSelectedObjects()
+    
+    bounds = stepup.getBounds(objs)
+    
+    if axe == 'x':
+        stepup.move(objs,-bounds.XMin,0,0)
+    elif axe == 'y':
+        stepup.move(objs,0,-bounds.YMin,0)
+    elif axe == 'z':
+        stepup.move(objs,0,0,-bounds.ZMin)
 
 def get_position():
     global min_val
@@ -3252,8 +3120,7 @@ def get_position():
     ##FreeCADGui.activeDocument().activeView().viewTop()
     doc = FreeCAD.ActiveDocument
     #say("hereXYZ !"+"\r\n")
-    selEx = stepup.getSelectedObjects()
-    objs = [selobj.Object for selobj in selEx]
+    objs = stepup.getSelectedObjects()
     if len(objs) == 1:
         s = objs[0].Shape
         boundBox_ = s.BoundBox
@@ -3303,8 +3170,8 @@ def routineM_XYZ(axe,v):
     #FreeCADGui.SendMsgToActiveView("ViewFit")
     ##FreeCADGui.activeDocument().activeView().viewTop()
     doc = FreeCAD.ActiveDocument
-    selEx = stepup.getSelectedObjects()
-    objs = [selobj.Object for selobj in selEx]
+    objs = stepup.getSelectedObjects()
+    
     if len(objs) == 1:
         s = objs[0].Shape
         boundBox_ = s.BoundBox
@@ -3360,7 +3227,7 @@ def routineCollisions():
     object_list = []
     collisions=0
     for obj in stepup.getSelectedObjects():
-        object_list.append(obj.Object)
+        object_list.append(obj)
 
     for i, object_a in enumerate(object_list):
         for object_b in object_list[(i + 1):]:
@@ -3523,8 +3390,8 @@ def create_axis():
 def createSolidBBox2(model3D):
     #FreeCADGui.Selection.removeSelection(FreeCAD.activeDocument().ActiveObject)
     selEx=model3D
-    selEx = stepup.getSelectedObjects()
-    objs = [selobj.Object for selobj in selEx]
+    objs = stepup.getSelectedObjects()
+    
     if len(objs) == 1:
         s = objs[0].Shape
         name=objs[0].Label

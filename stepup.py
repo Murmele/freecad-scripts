@@ -18,7 +18,7 @@ def getAllObjects():
     
 #return all selected objects in Active Document
 def getSelectedObjects():
-    return FreeCADGui.Selection.getSelectionEx()
+    return [selected.Object for selected in FreeCADGui.Selection.getSelectionEx()]
     
 #return combined meshes of all objects in Active Document
 def getAllMeshes():
@@ -205,7 +205,7 @@ def rotate(objs,angle,axes):
 
     origin = FreeCAD.Vector(0,0,0)
     x,y,z = axes
-    axis = FreeCAD.Vector(axes)
+    axis = FreeCAD.Vector(x,y,z)
     
     Draft.rotate(objs,
                 angle,
@@ -233,10 +233,45 @@ def scale(objs, scaling):
 def move(objs,x,y,z):
     Draft.move(objs,FreeCAD.Vector(x,y,z))
     
+#center objects
+def centerX(objs):
+    box = getBounds(objs)
+    
+    d = (box.XMax + box.XMin) / 2
+    
+    move(objs, -d, 0, 0)
+    
+def centerY(objs):
+    box = getBounds(objs)
+    
+    d = (box.YMax + box.YMin) / 2
+    
+    move(objs, 0, -d, 0)
+    
+def centerZ(objs):
+    box = getBounds(objs)
+    
+    d = (box.ZMax + box.ZMin) / 2
+    
+    move(objs, 0, 0, -d)
+    
 #get the consolidated bounding box for a group of objects
 def getBounds(objs):
 
-    box = objs[0].Shape.BoundBox
+    box = FreeCAD.BoundBox()
+    
+    if len(objs) == 0:
+        return None
+        
+    #copy across the values
+    b = objs[0].Shape.BoundBox
+    box.XMax = b.XMax
+    box.YMax = b.YMax
+    box.ZMax = b.ZMax
+    
+    box.XMin = b.XMin
+    box.YMin = b.YMin
+    box.ZMin = b.ZMin
     
     for obj in objs[1:]:
         b = obj.Shape.BoundBox
@@ -254,6 +289,8 @@ def getBounds(objs):
         box.ZMax = max(box.ZMax,b.ZMax)
     
     return box
+    
+    
     
 #calculate the required pin-offset based on filename
 def getPinOffset(filename):
