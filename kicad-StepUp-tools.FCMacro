@@ -181,6 +181,10 @@ import OpenSCAD2Dgeom
 import ImportGui
 from math import sqrt, atan, sin, cos, radians, degrees, pi
 
+#re-usable functions are here
+import stepup
+from stepup import clear_console, say, sayw, sayerr
+
 import argparse
 import __builtin__
 if FreeCAD.GuiUp:
@@ -254,13 +258,7 @@ save_temp_data=False
 
 current_milli_time = lambda: int(round(time.time() * 1000))
 
-def clear_console():
-    #clearing previous messages
-    mw=FreeCADGui.getMainWindow()
-    c=mw.findChild(QtGui.QPlainTextEdit, "Python console")
-    c.clear()
-    r=mw.findChild(QtGui.QTextEdit, "Report view")
-    r.clear()
+
 
 #if not Mod_ENABLED:
 clear_console()
@@ -292,17 +290,6 @@ def open(filename):
     elif ext==".kicad_mod":
         onLoadFootprint(filename)
 
-#display a console message
-def say(*arg):
-    FreeCAD.Console.PrintMessage(" ".join(map(str,arg)) + "\n")
-
-#display a warning message
-def sayw(*arg):
-    FreeCAD.Console.PrintWarning(" ".join(map(str,arg)) + "\n")
-    
-#display an error message
-def sayerr(*arg):
-    FreeCAD.Console.PrintError(" ".join(map(str,arg)) + "\n")
 
 def cfgParsWrite(configFilePath):
     ##ksu pre-set
@@ -450,47 +437,9 @@ def cfgParsRead(configFilePath):
     #return cfg_parameters
 ##
 
-def shapeToMesh(shape, color, transp, mesh_deviation, scale=None):
-    #mesh_deviation=0.1 #the smaller the best quality, 1 coarse
-    #say(mesh_deviation+'\n')
-    mesh_data = shape.tessellate(mesh_deviation)
-    points = mesh_data[0]
-    if scale != None:
-        points = map(lambda p: p*scale, points)
-    newMesh= Mesh(points = points,
-                faces = mesh_data[1],
-                color = color, transp=transp)
-    return newMesh
+
         
-def exportVRML(objects, filepath):
-    """Export given list of Mesh objects to a VRML file.
 
-    `Mesh` structure is defined at root."""
-
-    with __builtin__.open(filepath, 'w') as f:
-        # write the standard VRML header
-        f.write("#VRML V2.0 utf8\n\n")
-        for obj in objects:
-            f.write("Shape { geometry IndexedFaceSet \n{ coordIndex [")
-            # write coordinate indexes for each face
-            f.write(','.join("%d,%d,%d,-1" % f for f in obj.faces))
-            f.write("]\n") # closes coordIndex
-            f.write("coord Coordinate { point [")
-            # write coordinate points for each vertex
-            #f.write(','.join('%.3f %.3f %.3f' % (p.x, p.y, p.z) for p in obj.points))
-            f.write(','.join('%.3f %.3f %.3f' % (p.x, p.y, p.z) for p in obj.points))
-            f.write("]\n}") # closes Coordinate
-            #shape_col=(1.0, 0.0, 0.0)#, 0.0)
-            f.write("}\n") # closes points
-            #say(obj.color)
-            shape_col=obj.color[:-1] #remove last item
-            #say(shape_col)
-            shape_transparency=obj.transp
-            f.write("appearance Appearance{material Material{diffuseColor %f %f %f\n" % shape_col)
-            f.write("transparency %f}}" % shape_transparency)
-            f.write("}\n") # closes Shape
-        say(filepath+' written\n')
-###
 
 def export(componentObjs, fullfilePathName, scale=None):
     """ Exports given ComponentModel object using FreeCAD.
@@ -536,57 +485,10 @@ def export(componentObjs, fullfilePathName, scale=None):
                 replyText = reply[0] # which will be "" if they clicked Cancel
                 mesh_dev=mesh_deviation_default #the smaller the best quality, 1 coarse
                 #default
-        #say(mesh_dev)
-        color=[]
-        Diffuse_color=[]
-        transparency=[]
-        for obj in componentObjs:
-            #say(obj.Label)
-            color.append(FreeCADGui.ActiveDocument.getObject(obj.Name).ShapeColor)
-            transparency.append(FreeCADGui.ActiveDocument.getObject(obj.Name).Transparency/100.0)
-            #say("color")
-            #say(FreeCADGui.ActiveDocument.getObject(obj.Name).DiffuseColor)
-            Diffuse_color.append(FreeCADGui.ActiveDocument.getObject(obj.Name).DiffuseColor)
-        i=0
-        meshes=[]
-        #say("diffuse color")
-        #say(Diffuse_color)
-        indexColor=0;
-        color_vector=[]
-        applyDiffuse=0
-        for obj in componentObjs:
-            shape1=obj.Shape
-            single_color=Diffuse_color[i];
-            #check lenght color
-            #say("len color")
-            #say(len(single_color))
-            #colors less then faces
-            if(len(single_color)!=len(shape1.Faces)):
-                applyDiffuse=0;
-                #copy color to all faces
-            #else copy singolar colors for faces
-            else:
-                applyDiffuse=1;
-                for color in single_color:
-                    color_vector.append(color)
-            #say("color_vector")
-            #say(color_vector)
-            for index in range(len(shape1.Faces)):
-                #say("color x")
-                #say(color_vector[indexColor])
-                singleFace=shape1.Faces[index]
-                if(applyDiffuse):
-                    #say(color_vector[indexColor])
-                    meshes.append(shapeToMesh(singleFace, color_vector[indexColor], transparency[i], mesh_dev, scale))
-                else:
-                    #say(single_color[0])
-                    meshes.append(shapeToMesh(singleFace, single_color[0], transparency[i], mesh_dev, scale))
-                indexColor=indexColor+1
-                #meshes.append(shapeToMesh(face, Diffuse_color[i], transparency[i], scale))
-            color_vector=[]
-            indexColor=0;
-            i=i+1
-        exportVRML(meshes, filename)
+
+        meshes = stepup.getAllMeshes()
+        
+        stepup.exportVRMLMeshes(meshes, filename)
     return
 ###
 

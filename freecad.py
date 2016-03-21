@@ -3,11 +3,11 @@ Various functions for transforming STEP files, and converting to WRL files
 """
 
 import FreeCAD, FreeCADGui, Draft, ImportGui
+import re
+import math
 
 import sys, os
 
-import re
-import math
 
 def getTempStepFile():
     step = os.path.split(getStepFile())

@@ -8,6 +8,7 @@ import sys
 from freecad import *
 print("starting")
 
+from stepup import *
 step = getStepFile().lower()
 
 showMessage("Importing:",getStepFile())
@@ -19,10 +20,6 @@ showMessage("Exporting:",getWRLFile())
 
 #convert to the silly KiCAD inches format
 scaleAll(1.0/2.54)
-#save a WRL file in the same directory as the supplied file
-#the 'tmp' command prevents WRL file output and keeps FreeCAD open
-if "tmp" in sys.argv:
-    pass
-else:
-    saveWRL(getWRLFile())
-    exit()
+
+exportVRMLMeshes(getAllMeshes(), getWRLFile())
+exit()
