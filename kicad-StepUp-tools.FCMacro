@@ -951,10 +951,11 @@ def Export2MCAD(blacklisted_model_elements):
 def Load_models(pcbThickness,modules):
     global off_x, off_y, volume_minimum, height_minimum, bbox_all, bbox_list
     global whitelisted_model_elements, models3D_prefix, last_pcb_path
+    say("Loading PCB Models -",len(modules))
     #say (modules)
     missing_models = ''
-    for i in range(len(modules)):
-        step_module=modules[i][0]
+    for module in modules:
+        step_module=module[0]
         #say(modules[i]);say('\n')
         #FreeCAD.Console.PrintMessage('step-module '+step_module+'\r\n')
         if (step_module.find('${KIPRJMOD}')!=-1):  #local 3D path
@@ -963,6 +964,8 @@ def Load_models(pcbThickness,modules):
             say('adjusting Local Path\r\n')
             say('step-module-replaced '+step_module+'\n')
             
+        say("Module: ",step_module)
+        
         if step_module == 'no3Dmodel':
             modelName = 'no3Dmodel'
             blacklisted = 1
@@ -971,12 +974,12 @@ def Load_models(pcbThickness,modules):
         if blacklisted_model_elements != '':
             if blacklisted_model_elements.find(model_name) != -1:
                 blacklisted=1
-        ###
+
         if (blacklisted==0):
             #attempt to find the associated step file
-            module_path = stepup.getKicadStepFile(stepup.getKicad3DModDir(), step_module)
+            module_path = stepup.getKicadStepFile(step_module)
             
-            if not step_module:
+            if not module_path:
                 sayw("Missing STEP file for",step_module)
                 missing_models += step_module + "\r\n"
                 continue
@@ -996,10 +999,11 @@ def Load_models(pcbThickness,modules):
                 stop
 
             #Adjust the position of the STEP file based on the KiCAD placement
-            pos_x=modules[i][1]-off_x
-            pos_y=modules[i][2]-off_y
-            rot=modules[i][3]
-            step_layer=modules[i][4]            
+            pos_x=module[1]-off_x
+            pos_y=module[2]-off_y
+            rot=module[3]
+            step_layer=module[4]            
+            
             impPart=FreeCAD.ActiveDocument.ActiveObject
             impPart.Label = impPart.Label + '_'
             impPart=reset_prop_shapes(impPart,FreeCAD.ActiveDocument, FreeCAD,FreeCADGui)
@@ -1385,11 +1389,11 @@ def Elaborate_Kicad_Board(filename):
     return modified,Levels,Edge_Cuts_lvl,Top_lvl,version,pcbThickness
 ### end Elaborate_Kicad_Board
 
+#return a list of parts from PCB models
 def getParts(PCB_Models,Top_lvl,Kicad_Board_elaborated,Levels):
     global addVirtual
     PCB_Models = []
     for i in re.findall(r'\[start\]\(module(.+?)\)\[stop\]', Kicad_Board_elaborated, re.MULTILINE|re.DOTALL):
-        ### print i
         [x, y, rot] = re.search(r'\(at\s+([0-9\.-]*?)\s+([0-9\.-]*?)(\s+[0-9\.-]*?|)\)', i).groups()
         layer = re.search(r'\(layer\s+(.+?)\)', i).groups()[0]
         x = float(x)
@@ -1405,11 +1409,14 @@ def getParts(PCB_Models,Top_lvl,Kicad_Board_elaborated,Levels):
         else:
             side = "Bottom"
             rot *= -1
-        #model = re.search(r'\(model\s+(.+?)\.wrl',i)
         model_name='no3Dmodel'
         #side='noLayer'
-        model_list= re.findall(r'\(model\s+(.+?)\.wrl',i)
+        #model_list= re.findall(r'\(model\s+(.+?)\.wrl',i)
+        #improved model-matching to accomodate for abs paths and paths with spaces
+        model_list = re.findall(r'\(model\s["]*(.+?)\.wrl["]*', i)
+            
         for j in range(0,len(model_list)):
+            say(model_list[j])
             rotz_vrml = re.findall(r'\(rotate\s+(.+?)\)', i)
             rotz=''
             if rotz_vrml:
