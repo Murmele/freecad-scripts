@@ -487,10 +487,8 @@ def export(componentObjs, fullfilePathName, scale=None):
                 #default
 
         meshes = stepup.getAllMeshes()
-        
         stepup.exportVRMLMeshes(meshes, filename)
     return
-###
 
 def go_export(fPathName):
     sel = FreeCADGui.Selection.getSelection()
@@ -975,7 +973,8 @@ def Load_models(pcbThickness,modules):
                 blacklisted=1
         ###
         if (blacklisted==0):
-            module_path = getKicadStepFile(getKicad3DModDir(), step_module)
+            #attempt to find the associated step file
+            module_path = stepup.getKicadStepFile(stepup.getKicad3DModDir(), step_module)
             
             if not step_module:
                 sayw("Missing STEP file for",step_module)
@@ -1476,7 +1475,7 @@ def getPCBArea(Kicad_Board):
 
 def createSolidBBox(model3D):
     selEx=model3D
-    selEx = FreeCADGui.Selection.getSelectionEx()
+    selEx = stepup.getSelectedObjects()
     objs = [selobj.Object for selobj in selEx]
     if len(objs) == 1:
         s = objs[0].Shape
@@ -2564,53 +2563,6 @@ def onLoadFootprint(file_name=None):
         
         attemptLoadStepFromKicadMod(name)
 ###
-
-#work out where the KiCAD 3D directory is
-def getKicad3DModDir():
-    
-    KISYS3DMOD = os.getenv("KISYS3DMOD",None)
-    
-    if KISYS3DMOD:
-        return KISYS3DMOD
-        
-    guesses = [
-    #windows paths
-    r'C:\kicad\share\kicad\modules\packages3d',
-    r'C:\kicad\share\packages3d',
-    r'C:\program files\kicad\share\modules\packages3d',
-    r'C:\program files\kicad\share\packages3d',
-    #nix paths
-    ]
-    
-    for guess in guesses:
-        if os.path.isdir(guess):
-            return guess
-            
-    return ''
-    
-#find a STEP file for a given wrl file
-def getKicadStepFile(dir_3d, wrl_name):
-    
-    wrl_name = wrl_name.replace("/",os.path.sep)
-    wrl_name = wrl_name.replace("\\",os.path.sep)
-    
-    steps = [
-    ".step",
-    ".STEP",
-    ".stp",
-    ".STP"
-    ]
-    
-    if wrl_name.endswith(".wrl"):
-        for step in steps:
-            step_name = wrl_name.replace(".wrl",step)
-            
-            step_file = os.path.join(dir_3d, step_name)
-            
-            if os.path.isfile(step_file):
-                return step_file
-                
-    return None
     
 
 def onLoadBoard_idf(file_name=None):
@@ -2931,7 +2883,7 @@ def routineR_XYZ(axe,alpha):
     ##FreeCADGui.activeDocument().activeView().viewTop()
     doc = FreeCAD.ActiveDocument
     #FreeCAD.Console.PrintMessage("hereXYZ !"+"\r\n")
-    selEx = FreeCADGui.Selection.getSelectionEx()
+    selEx = stepup.getSelectedObjects()
     objs = [selobj.Object for selobj in selEx]
     if len(objs) == 1:
         s = objs[0].Shape
@@ -2979,7 +2931,7 @@ def routineT_XYZ(axe,v):
     #FreeCADGui.SendMsgToActiveView("ViewFit")
     ##FreeCADGui.activeDocument().activeView().viewTop()
     doc = FreeCAD.ActiveDocument
-    selEx = FreeCADGui.Selection.getSelectionEx()
+    selEx = stepup.getSelectedObjects()
     objs = [selobj.Object for selobj in selEx]
     if len(objs) == 1:
         s = objs[0].Shape
@@ -3011,7 +2963,7 @@ def routineResetPlacement():
     #FreeCADGui.SendMsgToActiveView("ViewFit")
     ##FreeCADGui.activeDocument().activeView().viewTop()
     doc = FreeCAD.ActiveDocument
-    selEx = FreeCADGui.Selection.getSelectionEx()
+    selEx = stepup.getSelectedObjects()
     objs = [selobj.Object for selobj in selEx]
     #print 'here'
     if len(objs) == 1:
@@ -3055,7 +3007,7 @@ def routineScaleVRML():
     global exportV, exportS
     say('routine Scale to VRML 1/2.54\n')
     doc = FreeCAD.ActiveDocument
-    selEx = FreeCADGui.Selection.getSelectionEx()
+    selEx = stepup.getSelectedObjects()
     objs = [selobj.Object for selobj in selEx]
     if len(objs) == 1:
         say('exporting\n')
@@ -3103,7 +3055,7 @@ def routineScaleVRML_1():
     #FreeCADGui.SendMsgToActiveView("ViewFit")
     ##FreeCADGui.activeDocument().activeView().viewTop()
     doc = FreeCAD.ActiveDocument
-    selEx = FreeCADGui.Selection.getSelectionEx()
+    selEx = stepup.getSelectedObjects()
     objs = [selobj.Object for selobj in selEx]
     if len(objs) == 1:
         objS=FreeCAD.ActiveDocument.getObject(objs[0].Name).Shape
@@ -3169,7 +3121,7 @@ def routineC_XYZ(axe):
     ##FreeCADGui.activeDocument().activeView().viewTop()
     doc = FreeCAD.ActiveDocument
     say("Centering on Axe XYZ !"+"\r\n")
-    selEx = FreeCADGui.Selection.getSelectionEx()
+    selEx = stepup.getSelectedObjects()
     objs = [selobj.Object for selobj in selEx]
     if len(objs) == 1:
         s = objs[0].Shape
@@ -3234,7 +3186,7 @@ def routineP_XYZ(axe):
     ##FreeCADGui.activeDocument().activeView().viewTop()
     doc = FreeCAD.ActiveDocument
     say("Put on Axe XYZ !"+"\r\n")
-    selEx = FreeCADGui.Selection.getSelectionEx()
+    selEx = stepup.getSelectedObjects()
     objs = [selobj.Object for selobj in selEx]
     if len(objs) == 1:
         s = objs[0].Shape
@@ -3293,7 +3245,7 @@ def get_position():
     ##FreeCADGui.activeDocument().activeView().viewTop()
     doc = FreeCAD.ActiveDocument
     #say("hereXYZ !"+"\r\n")
-    selEx = FreeCADGui.Selection.getSelectionEx()
+    selEx = stepup.getSelectedObjects()
     objs = [selobj.Object for selobj in selEx]
     if len(objs) == 1:
         s = objs[0].Shape
@@ -3344,7 +3296,7 @@ def routineM_XYZ(axe,v):
     #FreeCADGui.SendMsgToActiveView("ViewFit")
     ##FreeCADGui.activeDocument().activeView().viewTop()
     doc = FreeCAD.ActiveDocument
-    selEx = FreeCADGui.Selection.getSelectionEx()
+    selEx = stepup.getSelectedObjects()
     objs = [selobj.Object for selobj in selEx]
     if len(objs) == 1:
         s = objs[0].Shape
@@ -3393,14 +3345,14 @@ def routineCollisions():
         diag.setWindowModality(QtCore.Qt.ApplicationModal)
         diag.exec_()
 
-    if len(FreeCADGui.Selection.getSelectionEx()) < 2:
+    if len(stepup.getSelectedObjects()) < 2:
         error_dialog('Select at least two objects')
         collisions=2
         return collisions
 
     object_list = []
     collisions=0
-    for obj in FreeCADGui.Selection.getSelectionEx():
+    for obj in stepup.getSelectedObjects():
         object_list.append(obj.Object)
 
     for i, object_a in enumerate(object_list):
@@ -3564,7 +3516,7 @@ def create_axis():
 def createSolidBBox2(model3D):
     #FreeCADGui.Selection.removeSelection(FreeCAD.activeDocument().ActiveObject)
     selEx=model3D
-    selEx = FreeCADGui.Selection.getSelectionEx()
+    selEx = stepup.getSelectedObjects()
     objs = [selobj.Object for selobj in selEx]
     if len(objs) == 1:
         s = objs[0].Shape

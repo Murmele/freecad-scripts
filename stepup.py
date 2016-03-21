@@ -4,15 +4,23 @@ if FreeCAD.GuiUp:
 import re
 import math
 
+import os,sys
+
 import __builtin__
 
 from collections import namedtuple
 
 Mesh = namedtuple('Mesh', ['points', 'faces', 'color', 'transp'])
 
+#return all objects in Active Document
 def getAllObjects():
     return FreeCAD.ActiveDocument.Objects
     
+#return all selected objects in Active Document
+def getSelectedObjects():
+    return FreeCADGui.Selection.getSelectionEx()
+    
+#return combined meshes of all objects in Active Document
 def getAllMeshes():
     meshes = []
     
@@ -21,12 +29,12 @@ def getAllMeshes():
         
     return meshes
 
-#Export a VRML model file
+#Export a VRML model file with the selected meshes
 def exportVRMLMeshes(meshes, filepath):
     """Export given list of Mesh objects to a VRML file.
 
     `Mesh` structure is defined at root."""
-
+    
     with __builtin__.open(filepath, 'w') as f:
         # write the standard VRML header
         f.write("#VRML V2.0 utf8\n\n")
@@ -85,6 +93,7 @@ def objectToMesh(object, scale=None):
     
     return meshes
     
+#Convert a face to a mesh
 def faceToMesh(face, color, transp, mesh_deviation, scale=None):
     #mesh_deviation=0.1 #the smaller the best quality, 1 coarse
     #say(mesh_deviation+'\n')
@@ -121,3 +130,150 @@ def clear_console():
     c.clear()
     r=mw.findChild(QtGui.QTextEdit, "Report view")
     r.clear()
+    
+#work out where the KiCAD 3D directory is
+def getKicad3DModDir():
+    
+    KISYS3DMOD = os.getenv("KISYS3DMOD",None)
+    
+    if KISYS3DMOD:
+        return KISYS3DMOD
+        
+    guesses = [
+    #windows paths
+    r'C:\kicad\share\kicad\modules\packages3d',
+    r'C:\kicad\share\packages3d',
+    r'C:\program files\kicad\share\modules\packages3d',
+    r'C:\program files\kicad\share\packages3d',
+    #nix paths
+    ]
+    
+    for guess in guesses:
+        if os.path.isdir(guess):
+            return guess
+            
+    return ''
+    
+#find a STEP file for a given wrl file
+def getKicadStepFile(dir_3d, wrl_name):
+    
+    #get rid of bad path separators
+    wrl_name = wrl_name.replace("/",os.path.sep)
+    wrl_name = wrl_name.replace("\\",os.path.sep)
+    
+    steps = [
+    ".step",
+    ".STEP",
+    ".stp",
+    ".STP"
+    ]
+    
+    if wrl_name.endswith(".wrl"):
+        for step in steps:
+            step_name = wrl_name.replace(".wrl",step)
+            
+            step_file = os.path.join(dir_3d, step_name)
+            
+            if os.path.isfile(step_file):
+                return step_file
+                
+    return None
+    
+#rotate 90 degrees across a given axis
+#centered around zero
+def rotateAll(angle,axes):
+
+    objs = getAllObjects()
+
+    origin = FreeCAD.Vector(0,0,0)
+    x,y,z = axes
+    axis = FreeCAD.Vector(axes)
+    
+    Draft.rotate(objs,
+                angle,
+                origin,
+                axis=axis,
+                copy=False)
+                
+                
+#scale ALL objects around center (down to inches for KiCAD)
+def scaleAll(scaling):
+
+    if type(scaling) in [int, float]:
+        x = scaling
+        y = scaling
+        z = scaling
+    else:
+        x,y,z = scaling
+
+    scale = FreeCAD.Vector(x,y,z)
+    origin = FreeCAD.Vector(0,0,0)
+
+    Draft.scale(getAllObjects(), delta=scale, center=origin, legacy=True, copy=False)
+         
+#move all objects 
+def moveAll(x,y,z):
+    Draft.move(getAllObjects(),FreeCAD.Vector(x,y,z))
+    
+#get the consolidated bounding box for a group of objects
+def getBounds(objs):
+
+    box = objs[0].Shape.BoundBox
+    
+    for obj in objs[1:]:
+        b = obj.Shape.BoundBox
+        
+        #x axis comparison
+        box.XMin = min(box.XMin,b.XMin)
+        box.XMax = max(box.XMax,b.XMax)
+        
+        #y axis comparison
+        box.YMin = min(box.YMin,b.YMin)
+        box.YMax = max(box.YMax,b.YMax)
+        
+        #z axis comparison
+        box.ZMin = min(box.ZMin,b.ZMin)
+        box.ZMax = max(box.ZMax,b.ZMax)
+    
+    return box
+    
+#calculate the required pin-offset based on filename
+def getPinOffset(filename):
+    
+    res = re.search("(\d*)x([\.\d]*)mm",filename)
+    
+    if res and len(res.group()) == 2:
+        n, pitch = res.groups()
+        
+        try:
+            n = int(n)
+            pitch = float(pitch)
+            
+            if n%2 == 0: #even pins
+                return (math.floor(n/2) - 0.5) * pitch
+            else: #odd pins
+                return math.floor(n/2) * pitch
+            
+        except:
+            pass
+            
+    return 0
+    
+#get the abs-path for the 3D file provided
+def getStepFile():
+    step = sys.argv[1]
+    filePath = os.path.dirname(os.path.abspath(__file__))
+    if not os.path.isabs(step):
+        step = os.path.join(filePath,step)
+    return step
+    
+#create a .wrl file path based on the provided 3D file
+def getWRLFile():
+    return ".".join(getStepFile().split(".")[:-1]) + ".wrl"
+    
+#get a path to a temp copy of the provided step file
+def getTempStepFile():
+    step = os.path.split(getStepFile())
+    
+    return os.path.join(step[0],"tmp_" + step[1])
+    
