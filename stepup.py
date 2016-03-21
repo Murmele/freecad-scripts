@@ -157,6 +157,8 @@ def getKicad3DModDir():
 #find a STEP file for a given wrl file
 def getKicadStepFile(wrl_name):
     
+    dirs = []
+    
     steps = [
     ".step",
     ".STEP",
@@ -175,20 +177,23 @@ def getKicadStepFile(wrl_name):
     if model_file.lower().endswith(".wrl"):
         model_file = model_file[:-4]
     
-    #if an explicit file path is not specified, look in the KISYS3DMOD dir
-    if not os.path.isabs(model_dir):
-        model_dir = os.path.join(getKicad3DModDir(),model_dir.split(os.path.sep)[-1])
+    if os.path.isabs(model_dir):
+        dirs.append(model_dir)
         
-    #try all the extensions
-    for ext in steps:
-        step_name = model_file + ext
-        
-        step_file = os.path.abspath(os.path.join(model_dir, step_name))
-        
-        if os.path.isfile(step_file):
-        
-            say("STEP:",step_file)
-            return step_file
+    dirs.append(os.path.join(getKicad3DModDir() , model_dir.split(os.path.sep)[-1]))
+    
+    #try all the directories
+    for d in dirs:
+        #try all the extensions
+        for ext in steps:
+            step_name = model_file + ext
+            
+            step_file = os.path.abspath(os.path.join(d, step_name))
+
+            if os.path.isfile(step_file):
+            
+                say("STEP:",step_file)
+                return step_file
                 
     say("STEP: No match")
                 
