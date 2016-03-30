@@ -1,0 +1,5 @@
+STEPUP fails when a component has multiple 3D models
+STEPUP does not account for model scaling
+STEPUP reloads multiple instances of same component
+stepup doesn't load colors properly for all components
+stepup doesn't properly merge the resulting STEP file
