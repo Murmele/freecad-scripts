@@ -135,31 +135,8 @@ def clear_console():
     r=mw.findChild(QtGui.QTextEdit, "Report view")
     r.clear()
     
-#work out where the KiCAD 3D directory is
-def getKicad3DModDir():
-    
-    KISYS3DMOD = os.getenv("KISYS3DMOD",None)
-    
-    if KISYS3DMOD:
-        return KISYS3DMOD
-        
-    guesses = [
-    #windows paths
-    r'C:\kicad\share\kicad\modules\packages3d',
-    r'C:\kicad\share\packages3d',
-    r'C:\program files\kicad\share\modules\packages3d',
-    r'C:\program files\kicad\share\packages3d',
-    #nix paths
-    ]
-    
-    for guess in guesses:
-        if os.path.isdir(guess):
-            return guess
-            
-    return ''
-    
 #find a STEP file for a given wrl file
-def getKicadStepFile(wrl_name):
+def getKicadStepFile(modelDir, wrl_name):
     
     dirs = []
     
@@ -170,8 +147,6 @@ def getKicadStepFile(wrl_name):
     ".STP"
     ]
     
-    say("WRL:",wrl_name)
-
     #get rid of bad path separators
     wrl_name = wrl_name.replace("/",os.path.sep)
     wrl_name = wrl_name.replace("\\",os.path.sep)
@@ -184,7 +159,9 @@ def getKicadStepFile(wrl_name):
     if os.path.isabs(model_dir):
         dirs.append(model_dir)
         
-    dirs.append(os.path.join(getKicad3DModDir(),model_dir))
+    dirs.append(os.path.join(modelDir,model_dir))
+    
+    say("Dirs:",dirs)
     
     #try all the directories
     for d in dirs:
@@ -199,7 +176,8 @@ def getKicadStepFile(wrl_name):
                 say("STEP:",step_file)
                 return step_file
                 
-    say("STEP: No match")
+                
+    say("STEP: No match for", wrl_name)
                 
     return None
     
@@ -361,6 +339,7 @@ def getStepFile():
 def getWRLFile():
     return ".".join(getStepFile().split(".")[:-1]) + ".wrl"
     
+#Save objects to a STEP file
 def exportStep(objs, filename):
     ImportGui.export(objs,filename)
     

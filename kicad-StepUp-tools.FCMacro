@@ -964,7 +964,7 @@ def Load_models(pcbThickness,modules):
             say('adjusting Local Path\r\n')
             say('step-module-replaced '+step_module+'\n')
             
-        say("Module: ",step_module)
+        say("Module:",step_module)
         
         if step_module == 'no3Dmodel':
             modelName = 'no3Dmodel'
@@ -977,7 +977,7 @@ def Load_models(pcbThickness,modules):
 
         if (blacklisted==0):
             #attempt to find the associated step file
-            module_path = stepup.getKicadStepFile(step_module)
+            module_path = stepup.getKicadStepFile(models3D_prefix, step_module)
             
             if not module_path:
                 sayw("Missing STEP file for",step_module)
