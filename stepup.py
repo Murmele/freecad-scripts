@@ -16,6 +16,12 @@ Mesh = namedtuple('Mesh', ['points', 'faces', 'color', 'transp'])
 def getAllObjects():
     return FreeCAD.ActiveDocument.Objects
     
+def removeAllButFirst():
+    objs = getAllObjects()[1:]
+    
+    for i in objs:
+        FreeCAD.ActiveDocument.removeObject(i.Name)
+    
 #return all selected objects in Active Document
 def getSelectedObjects():
     return [selected.Object for selected in FreeCADGui.Selection.getSelectionEx()]

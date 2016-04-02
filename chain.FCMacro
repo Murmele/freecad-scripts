@@ -44,12 +44,14 @@ p=z (align p1 along z axis)
 
 """
 
-import FreeCAD
-from freecad import *
+import FreeCAD, FreeCADGui
+from stepup import *
 
 FreeCADGui.ActiveDocument.ActiveView.setAxisCross(True)
 
 objs = getAllObjects()[0:1] #only operate on the first object
+
+removeAllButFirst()
 
 for i in sys.argv[2:]:
 
