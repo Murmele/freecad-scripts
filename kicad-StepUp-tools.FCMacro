@@ -1729,8 +1729,10 @@ def Per_point(prev_vertex,vertex):
 #####################################
 # Function infoDialog 
 #####################################
-def infoDialog(msg):
-    #QtGui.qFreeCAD.setOverrideCursor(QtCore.Qt.WaitCursor)
+def infoDialog(*arg):
+
+    msg = " ".join(map(str,arg))
+    
     QtGui.qFreeCAD.restoreOverrideCursor()
     QtGui.qApp.restoreOverrideCursor()
     diag = QtGui.QMessageBox(QtGui.QMessageBox.Information,u"Info Message",msg )
