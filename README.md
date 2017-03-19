@@ -2,13 +2,13 @@
 FreeCAD scripts for converting STEP files to KiCAD-compatible WRL files. These scripts allow STEP files to be quickly adjusted to match KiCAD rotation/offset parameters, scaled to inferial inches, and converted to KiCAD-friendly .wrl files.
 
 ## Files
-- stepup.py - a number of functions for adjusting models in freecad programatically
+- stepup.py - a number of functions for adjusting models in FreeCad programatically
 - step2wrl.FCMacro - a FreeCad Macro file (really just a .py file in disguise) that takes an input STEP file, scales it by 1/2.54 (inches, blergh) and saves as a .wrl file for easy KiCAD consumption
 - STEP2WRL.bat - a windows batch script that allows multiple STEP files to be processed by the step2wrl macro
 - chain.FCMacro - A FreeCad macro file that accepts a sequence of short-hand commands (e.g. rotation, alignment, movement), applies them in sequence to the provided STEP file, and then re-saves the STEP file in the same location.
 - ADJUST.bat - a windows batch script that allows multiple STEP files to be processed using the same sequence of commands
 
-### Requirements
+## Requirements
 - Install [FreeCAD](http://www.freecadweb.org/)
 - Have fun
 
@@ -18,7 +18,7 @@ This way, you can download *free* STEP files from a number of sources, and quick
 Additionally, once you have worked out the sequence of commands required to orient the 3D model, you can use the ADJUST.bat script to apply that sequence to a large number of STEP files.
 
 ### Usage
-To use the *chain* macro, you launch freecad from the command-line, with the STEP file as the first argument, chain.FCMacro as the second, and any transformation commands follow.
+To use the *chain* macro, you launch FreeCad from the command-line, with the STEP file as the first argument, chain.FCMacro as the second, and any transformation commands follow.
 
 freecad.exe path/to/model.STEP chain.FCMacro [cmd1] [cmd2] ... [cmdn] [tmp]
 
@@ -125,4 +125,4 @@ You can even chain the step2wrl.FCMacro command into the batch file so that both
 
 ## Build Your Own
 
-Play around with a sequence of commands or check out the options available in freecad.py
+Play around with a sequence of commands or check out the options available in stepup.py
