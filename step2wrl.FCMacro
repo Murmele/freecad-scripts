@@ -5,20 +5,20 @@ Export a .wrl file (with colors!)
 """
 
 import sys
-import freecad
+import stepup
 
-step = freecad.getStepFile().lower()
+step = stepup.getStepFile().lower()
 
-freecad.say("Importing:",step)
+stepup.say("Importing:",step)
 
 if not step.endswith("step") and not step.endswith("stp"):
-    freecad.sayerr("STEP file must be supplied")
+    stepup.sayerr("STEP file must be supplied")
     
-wrl = freecad.getWRLFile()
-freecad.say("Exporting:",wrl)
+wrl = stepup.getWRLFile()
+stepup.say("Exporting:",wrl)
 
 #convert to the silly KiCAD inches format
-freecad.scale(freecad.getAllObjects(),1.0/2.54)
+stepup.scale(stepup.getAllObjects(),1.0/2.54)
 
-freecad.exportVRMLMeshes(freecad.getAllMeshes(),wrl)
+stepup.exportVRMLMeshes(stepup.getAllMeshes(),wrl)
 exit()
