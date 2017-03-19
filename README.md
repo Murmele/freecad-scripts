@@ -1,28 +1,28 @@
 # freecad-scripts
-FreeCAD scripts for converting STEP files to KiCAD-compatible WRL files. These scripts allow STEP files to be quickly adjusted to match KiCAD rotation/offset parameters, scaled to inferial inches, and converted to KiCAD-friendly .wrl files. 
+FreeCAD scripts for converting STEP files to KiCAD-compatible WRL files. These scripts allow STEP files to be quickly adjusted to match KiCAD rotation/offset parameters, scaled to inferial inches, and converted to KiCAD-friendly .wrl files.
 
-##Files
-- freecad.py - a number of functions for adjusting models in freecad programatically
+## Files
+- stepup.py - a number of functions for adjusting models in FreeCad programatically
 - step2wrl.FCMacro - a FreeCad Macro file (really just a .py file in disguise) that takes an input STEP file, scales it by 1/2.54 (inches, blergh) and saves as a .wrl file for easy KiCAD consumption
 - STEP2WRL.bat - a windows batch script that allows multiple STEP files to be processed by the step2wrl macro
 - chain.FCMacro - A FreeCad macro file that accepts a sequence of short-hand commands (e.g. rotation, alignment, movement), applies them in sequence to the provided STEP file, and then re-saves the STEP file in the same location.
-- ADJUST.bat - a windows batch script that allows multiple STEP files to be processed using the same sequence of commands 
+- ADJUST.bat - a windows batch script that allows multiple STEP files to be processed using the same sequence of commands
 
-###Requirements
+## Requirements
 - Install [FreeCAD](http://www.freecadweb.org/)
 - Have fun
 
-##Adjustment Chain
+## Adjustment Chain
 The *chain* macro allows the user to provide a 3D model to FreeCAD, and then sequence of commands to perform (in order) to that model. This is a powerful (and quick!) way of converting a 3D model into the correct XYZ orientation, and planar alignment for inclusion in KiCAD as a .wrl file.
 This way, you can download *free* STEP files from a number of sources, and quickly orient them to your footprint.
 Additionally, once you have worked out the sequence of commands required to orient the 3D model, you can use the ADJUST.bat script to apply that sequence to a large number of STEP files.
 
-###Usage
-To use the *chain* macro, you launch freecad from the command-line, with the STEP file as the first argument, chain.FCMacro as the second, and any transformation commands follow.
+### Usage
+To use the *chain* macro, you launch FreeCad from the command-line, with the STEP file as the first argument, chain.FCMacro as the second, and any transformation commands follow.
 
 freecad.exe path/to/model.STEP chain.FCMacro [cmd1] [cmd2] ... [cmdn] [tmp]
 
-###Commands
+### Commands
 The following commands are available for the *chain* macro
 
 **tmp** - Including 'tmp' as an argument will not overwrite the original file, instead the file will be saved with the prefix *tmp_*. This allows experimentation with the adjustment chain without damaging the STEP file.
@@ -37,7 +37,6 @@ ry+ (rotate +90 degrees around Y axis)
 
 ry- (rotate -90 degrees around Y axis)
 
-
 rz+ (rotate +90 degrees around Z axis)
 
 rz- (rotate -90 degrees around Z axis)
@@ -50,7 +49,7 @@ s=f (scale the part by scaling-factor 'f')
 
 p=[x|y|z] - Specify that we want to auto-align pin-1 along a given axis
 
-This option can save a *lot* of time either adjusting the 3D model so that pin-1 (for THT parts) is at the origin, or adjusting the offset of the WRL file in KiCAD so that it matches the footprint. This is the most complicated command but provides powerful functionality if used correctly. The file-name of the input STEP file needs to include pin-count and pitch information, in the format '*pins*x*pitch*mm' (for example: *JST_PUD_S34B-PUDSS-1_2x17x2.00mm_Angled.STEP*) will be evaluated as 17 pins, 2.00mm pitch. 
+This option can save a *lot* of time either adjusting the 3D model so that pin-1 (for THT parts) is at the origin, or adjusting the offset of the WRL file in KiCAD so that it matches the footprint. This is the most complicated command but provides powerful functionality if used correctly. The file-name of the input STEP file needs to include pin-count and pitch information, in the format '*pins*x*pitch*mm' (for example: *JST_PUD_S34B-PUDSS-1_2x17x2.00mm_Angled.STEP*) will be evaluated as 17 pins, 2.00mm pitch.
 
 *Note: Yes, this part actually has 34 pins, but it's split into two rows, and it is the pins-per-row that we are really interested in.*
 
@@ -84,7 +83,7 @@ my=d (move part along y-axis by d)
 
 mz=d (move part along z-axis by d)
 
-##Example##
+## Example
 
 Let's try out an example.
 
@@ -124,7 +123,6 @@ Once we have figured out the sequence for adjusting *one* component, we can auto
 
 You can even chain the step2wrl.FCMacro command into the batch file so that both processes are executed in series.
 
-##Build Your Own##
-Play around with a sequence of commands or check out the options available in freecad.py
+## Build Your Own
 
-
+Play around with a sequence of commands or check out the options available in stepup.py
